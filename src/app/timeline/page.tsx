@@ -1,39 +1,40 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { Card, DateTile, StageBadge } from "@/components/ui";
+import { Card, CardHeader, DateTile } from "@/components/ui";
 import { dealById, timeline, TODAY } from "@/lib/data";
-import { dayNum, fmtDate, monthAbbr, relativeDue, shortAddress } from "@/lib/format";
+import { dayNum, daysFromToday, fmtDate, monthAbbr, monthName, relativeDue, shortAddress } from "@/lib/format";
 
 export default function TimelinePage() {
   const upcoming = timeline.filter((e) => e.date >= TODAY).sort((a, b) => a.date.localeCompare(b.date));
   const byMonth = upcoming.reduce<Record<string, typeof upcoming>>((acc, e) => {
-    const key = new Date(e.date + "T12:00:00").toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-    (acc[key] ||= []).push(e);
+    (acc[monthName(e.date)] ||= []).push(e);
     return acc;
   }, {});
 
   return (
     <div className="mx-auto max-w-4xl">
-      <PageHeader title="Timeline" subtitle="Upcoming milestones across all deals" />
-      <div className="space-y-6">
+      <PageHeader title="Calendario" subtitle="Las próximas fechas importantes de tus ventas" />
+      <div className="space-y-8">
         {Object.entries(byMonth).map(([month, events]) => (
           <Card key={month}>
-            <h2 className="border-b border-slate-100 px-5 py-4 text-lg font-semibold sm:px-6">{month}</h2>
-            <ul className="divide-y divide-slate-100">
+            <CardHeader title={month} />
+            <ul className="divide-y divide-miel-100">
               {events.map((e) => {
                 const d = dealById(e.dealId)!;
+                const soon = daysFromToday(e.date) <= 7;
                 return (
                   <li key={e.id}>
-                    <Link href={`/deals/${d.id}`} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 sm:px-6">
+                    <Link href={`/deals/${d.id}`} className="flex items-center gap-4 px-5 py-5 hover:bg-miel-50 sm:px-7">
                       <DateTile day={dayNum(e.date)} month={monthAbbr(e.date)} />
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-slate-900">{e.name}</p>
-                        <p className="truncate text-sm text-slate-500">{fmtDate(e.date)} · {shortAddress(d)}</p>
+                        <p className="text-lg font-semibold text-cafe-900">{e.name}</p>
+                        <p className="mt-1 text-base text-cafe-700">
+                          {fmtDate(e.date)} · {shortAddress(d)}
+                        </p>
                       </div>
-                      <div className="hidden text-right sm:block">
-                        <StageBadge stage={d.stage} />
-                        <p className="mt-1 text-xs text-slate-500">{relativeDue(e.date)}</p>
-                      </div>
+                      <span className={soon ? "shrink-0 text-base font-semibold text-cafe-900" : "hidden shrink-0 text-base text-cafe-700 sm:block"}>
+                        {relativeDue(e.date)}
+                      </span>
                     </Link>
                   </li>
                 );

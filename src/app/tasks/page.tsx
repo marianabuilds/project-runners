@@ -8,8 +8,8 @@ import { shortAddress } from "@/lib/format";
 export default function TasksPage() {
   return (
     <div className="mx-auto max-w-4xl">
-      <PageHeader title="Tasks" subtitle="Every task across your deals" />
-      <div className="space-y-6">
+      <PageHeader title="Pendientes" subtitle="Todo lo que falta, venta por venta" />
+      <div className="space-y-8">
         {deals.map((d) => {
           const ts = tasksFor(d.id);
           if (!ts.length) return null;
@@ -17,9 +17,9 @@ export default function TasksPage() {
             <Card key={d.id}>
               <CardHeader
                 title={shortAddress(d)}
-                subtitle={d.buyer.name}
+                subtitle={`Cliente: ${d.buyer.name}`}
                 action={
-                  <Link href={`/deals/${d.id}`} className="shrink-0">
+                  <Link href={`/deals/${d.id}`} className="shrink-0" aria-label={`Ver la venta de ${shortAddress(d)}`}>
                     <StageBadge stage={d.stage} />
                   </Link>
                 }

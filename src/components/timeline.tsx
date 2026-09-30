@@ -27,11 +27,11 @@ export function Timeline({ events }: { events: TimelineEvent[] }) {
               <div>
                 <p className={clsx("font-medium", past ? "text-slate-500" : "text-slate-900")}>
                   {e.name}
-                  {next && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Next</span>}
+                  {next && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Próximo</span>}
                 </p>
                 <p className="text-sm text-slate-500">{fmtDate(e.date)}</p>
               </div>
-              <span className="text-sm text-slate-500">{past ? "Done" : relativeDue(e.date)}</span>
+              <span className="text-sm text-slate-500">{past ? "Hecho" : relativeDue(e.date)}</span>
             </div>
           </li>
         );

@@ -6,13 +6,13 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "trato — deal dashboard",
-  description: "Keep buyers and agents aligned on every real estate deal.",
+  title: "trato — mis ventas",
+  description: "Mantén a compradores y agentes alineados en cada venta o alquiler.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
         <div className="lg:flex">
           <Sidebar />

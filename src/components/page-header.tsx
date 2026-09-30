@@ -9,13 +9,13 @@ export function PageHeader({ title, subtitle, children }: { title: React.ReactNo
       </div>
       <div className="flex items-center gap-1">
         {children}
-        <button className="hidden rounded-full p-2 text-slate-600 hover:bg-white sm:block" aria-label="Search">
+        <button className="hidden rounded-full p-2 text-slate-600 hover:bg-white sm:block" aria-label="Buscar">
           <Search className="h-5 w-5" />
         </button>
-        <button className="hidden rounded-full p-2 text-slate-600 hover:bg-white sm:block" aria-label="Help">
+        <button className="hidden rounded-full p-2 text-slate-600 hover:bg-white sm:block" aria-label="Ayuda">
           <HelpCircle className="h-5 w-5" />
         </button>
-        <button className="relative rounded-full p-2 text-slate-600 hover:bg-white" aria-label="Notifications, 3 unread">
+        <button className="relative rounded-full p-2 text-slate-600 hover:bg-white" aria-label="Notificaciones, 3 sin leer">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-slate-50" />
         </button>

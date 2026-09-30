@@ -1,7 +1,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { Check, ChevronRight } from "lucide-react";
-import { STAGES, type Stage, type TaskStatus } from "@/lib/data";
+import { STAGES, type Buyer, type DealKind, type Stage, type TaskStatus } from "@/lib/data";
 import { stageIndex, stageLabel } from "@/lib/format";
 
 export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
@@ -32,7 +32,7 @@ export function CardHeader({
       </div>
       {href && (
         <Link href={href} className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-blue-700 hover:text-blue-800">
-          View all <ChevronRight className="h-4 w-4" aria-hidden />
+          Ver todo <ChevronRight className="h-4 w-4" aria-hidden />
         </Link>
       )}
       {action}
@@ -82,9 +82,9 @@ export function StageBadge({ stage }: { stage: Stage }) {
 }
 
 const statusStyles: Record<TaskStatus, { label: string; cls: string }> = {
-  pending: { label: "Pending", cls: "bg-slate-100 text-slate-700" },
-  in_progress: { label: "In progress", cls: "bg-blue-50 text-blue-700" },
-  completed: { label: "Completed", cls: "bg-emerald-50 text-emerald-700" },
+  pending: { label: "Pendiente", cls: "bg-slate-100 text-slate-700" },
+  in_progress: { label: "En curso", cls: "bg-blue-50 text-blue-700" },
+  completed: { label: "Completada", cls: "bg-emerald-50 text-emerald-700" },
 };
 
 export function StatusPill({ status }: { status: TaskStatus }) {
@@ -111,7 +111,7 @@ export function Avatar({ initials, size = "md" }: { initials: string; size?: "sm
 export function StageTracker({ stage }: { stage: Stage }) {
   const current = stageIndex(stage);
   return (
-    <ol className="flex w-full items-start" aria-label="Deal stage">
+    <ol className="flex w-full items-start" aria-label="Etapa">
       {STAGES.map((s, i) => {
         const done = i < current;
         const active = i === current;
@@ -148,7 +148,7 @@ export function Donut({ segments, size = 168 }: { segments: { value: number; col
   const r = 15.9155; // circumference = 100
   let offset = 25;
   return (
-    <svg viewBox="0 0 42 42" width={size} height={size} role="img" aria-label="Pipeline by stage">
+    <svg viewBox="0 0 42 42" width={size} height={size} role="img" aria-label="Pipeline por etapa">
       <circle cx="21" cy="21" r={r} fill="none" stroke="#f1f5f9" strokeWidth="7" />
       {segments.map((s, i) => {
         const pct = (s.value / total) * 100;
@@ -181,6 +181,39 @@ export function DateTile({ day, month }: { day: number; month: string }) {
         <div className="text-base font-semibold text-slate-900">{day}</div>
         <div className="mt-0.5 text-[10px] uppercase text-slate-500">{month}</div>
       </div>
+    </div>
+  );
+}
+
+export function KindBadge({ kind }: { kind: DealKind }) {
+  return (
+    <span
+      className={clsx(
+        "inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1",
+        kind === "venta" ? "bg-blue-50 text-blue-700 ring-blue-200" : "bg-violet-50 text-violet-700 ring-violet-200",
+      )}
+    >
+      {kind === "venta" ? "Venta" : "Alquiler"}
+    </span>
+  );
+}
+
+export function AvatarStack({ buyers, size = "md" }: { buyers: Buyer[]; size?: "sm" | "md" }) {
+  const shown = buyers.slice(0, 3);
+  const extra = buyers.length - shown.length;
+  const dim = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
+  return (
+    <div className="flex shrink-0 -space-x-2" aria-label={`${buyers.length} personas`}>
+      {shown.map((b) => (
+        <div key={b.id} className={clsx("grid place-items-center rounded-full bg-slate-100 font-medium text-slate-700 ring-2 ring-white", dim)} aria-hidden>
+          {b.initials}
+        </div>
+      ))}
+      {extra > 0 && (
+        <div className={clsx("grid place-items-center rounded-full bg-slate-200 font-medium text-slate-600 ring-2 ring-white", dim)} aria-hidden>
+          +{extra}
+        </div>
+      )}
     </div>
   );
 }

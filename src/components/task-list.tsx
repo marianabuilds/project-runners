@@ -1,18 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import clsx from "clsx";
 import { Check, Plus } from "lucide-react";
-import type { Task, TaskStatus } from "@/lib/data";
+import type { Task } from "@/lib/data";
 import { api } from "@/lib/client";
 import { daysFromToday, relativeDue } from "@/lib/format";
-import { StatusPill } from "./ui";
 
-type Filter = "all" | "buyer" | "agent" | "open";
-type Sort = "due" | "status";
-
-const statusOrder: Record<TaskStatus, number> = { in_progress: 0, pending: 1, completed: 2 };
+type Tab = "open" | "done";
 
 export function TaskList({
   initial,
@@ -28,183 +24,149 @@ export function TaskList({
   const router = useRouter();
   const [, start] = useTransition();
   const items = initial;
+  const [tab, setTab] = useState<Tab>("open");
   const [adding, setAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDate, setNewDate] = useState("");
-  const [newAssignee, setNewAssignee] = useState<"agent" | "buyer">("agent");
-  const [filter, setFilter] = useState<Filter>(mode === "buyer" ? "open" : "all");
-  const [sort, setSort] = useState<Sort>("due");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [assignee, setAssignee] = useState<"agent" | "buyer">("agent");
 
-  const visible = useMemo(() => {
-    const f = items.filter((t) =>
-      filter === "all" ? true : filter === "open" ? t.status !== "completed" : t.assignee === filter,
-    );
-    return f.sort((a, b) =>
-      sort === "due" ? a.dueDate.localeCompare(b.dueDate) : statusOrder[a.status] - statusOrder[b.status],
-    );
-  }, [items, filter, sort]);
+  const open = items.filter((t) => t.status !== "completed");
+  const done = items.filter((t) => t.status === "completed");
+  const visible = (tab === "open" ? open : done).slice().sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
-  const setStatus = (ids: string[], status: TaskStatus) =>
+  const toggleDone = (t: Task) =>
     start(async () => {
-      await Promise.all(ids.map((id) => api({ type: "task-status", id, status })));
+      await api({ type: "task-status", id: t.id, status: t.status === "completed" ? "pending" : "completed" });
       router.refresh();
     });
 
-  const toggleDone = (t: Task) => setStatus([t.id], t.status === "completed" ? "pending" : "completed");
-
-  const submitTask = () => {
-    if (!newTitle.trim() || !dealId) return;
+  const addTask = () => {
+    if (!title.trim() || !dealId) return;
     start(async () => {
-      await api({ type: "task-add", dealId, title: newTitle.trim(), assignee: newAssignee, dueDate: newDate || "2026-10-15" });
-      setNewTitle("");
-      setNewDate("");
+      await api({ type: "task-add", dealId, title: title.trim(), assignee, dueDate: date || "2026-10-15" });
+      setTitle("");
+      setDate("");
       setAdding(false);
       router.refresh();
     });
   };
 
-  const toggleSelect = (id: string) =>
-    setSelected((s) => {
-      const n = new Set(s);
-      if (n.has(id)) n.delete(id);
-      else n.add(id);
-      return n;
-    });
-
-  const bulkComplete = () => {
-    setStatus(Array.from(selected), "completed");
-    setSelected(new Set());
-  };
-
-  const filters: { key: Filter; label: string }[] =
+  const who = (t: Task) =>
     mode === "buyer"
-      ? [
-          { key: "open", label: "Por hacer" },
-          { key: "all", label: "Todas" },
-        ]
-      : [
-          { key: "all", label: "Todas" },
-          { key: "open", label: "Abiertas" },
-          { key: "buyer", label: "Comprador" },
-          { key: "agent", label: "Agente" },
-        ];
+      ? t.assignee === "buyer"
+        ? "Lo haces tú"
+        : "Lo hace tu agente"
+      : t.assignee === "buyer"
+        ? `Lo hace ${buyerName}`
+        : "Lo haces tú";
+
+  const tabs: { key: Tab; label: string; count: number }[] = [
+    { key: "open", label: "Por hacer", count: open.length },
+    { key: "done", label: "Hechas", count: done.length },
+  ];
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6">
-        <div className="flex gap-1 rounded-xl bg-slate-100 p-1" role="group" aria-label="Filtrar tareas">
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              aria-pressed={filter === f.key}
-              className={clsx(
-                "rounded-lg px-3 py-1.5 text-sm",
-                filter === f.key ? "bg-white font-medium text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          {mode === "agent" && selected.size > 0 && (
-            <button onClick={bulkComplete} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">
-              Completar {selected.size}
-            </button>
-          )}
-          <label className="flex items-center gap-2 text-sm text-slate-600">
-            <span className="sr-only sm:not-sr-only">Orden</span>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
-              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
-            >
-              <option value="due">Fecha</option>
-              <option value="status">Estado</option>
-            </select>
-          </label>
-        </div>
+      <div className="flex gap-2 px-5 py-4 sm:px-7" role="group" aria-label="Mostrar pendientes">
+        {tabs.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => setTab(f.key)}
+            aria-pressed={tab === f.key}
+            className={clsx(
+              "min-h-[48px] flex-1 whitespace-nowrap rounded-2xl px-4 text-lg font-semibold transition-colors sm:flex-none",
+              tab === f.key ? "bg-cafe-600 text-white" : "bg-miel-100 text-cafe-800 hover:bg-miel-200",
+            )}
+          >
+            {f.label} <span className={clsx("font-body", tab === f.key ? "text-miel-200" : "text-cafe-500")}>({f.count})</span>
+          </button>
+        ))}
       </div>
 
-      <ul className="divide-y divide-slate-100 border-t border-slate-100">
+      <ul className="divide-y divide-miel-100 border-t border-miel-100">
         {visible.map((t) => {
-          const done = t.status === "completed";
-          const overdue = !done && daysFromToday(t.dueDate) < 0;
+          const isDone = t.status === "completed";
+          const overdue = !isDone && daysFromToday(t.dueDate) < 0;
           const canComplete = mode === "agent" || t.assignee === "buyer";
           return (
-            <li key={t.id} className="flex items-start gap-3 px-5 py-4 sm:px-6">
-              {mode === "agent" && (
-                <input
-                  type="checkbox"
-                  checked={selected.has(t.id)}
-                  onChange={() => toggleSelect(t.id)}
-                  disabled={done}
-                  aria-label={`Seleccionar “${t.title}”`}
-                  className="mt-2.5 h-4 w-4 rounded border-slate-300 text-blue-600 disabled:opacity-30"
-                />
-              )}
+            <li key={t.id} className="flex items-start gap-4 px-5 py-5 sm:px-7">
               <button
+                type="button"
                 onClick={() => canComplete && toggleDone(t)}
                 disabled={!canComplete}
-                aria-label={done ? `Reabrir “${t.title}”` : `Completar “${t.title}”`}
+                aria-pressed={isDone}
+                aria-label={isDone ? `Marcar “${t.title}” como no hecha` : `Marcar “${t.title}” como hecha`}
+                title={isDone ? "Marcar como no hecha" : "Marcar como hecha"}
                 className={clsx(
-                  "mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors",
-                  done ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 hover:border-emerald-500",
+                  "grid h-12 w-12 shrink-0 place-items-center rounded-full border-[3px] transition-colors",
+                  isDone
+                    ? "border-green-700 bg-green-700 text-white hover:bg-green-800"
+                    : "border-cafe-300 bg-white text-transparent hover:border-cafe-600 hover:bg-miel-50 hover:text-cafe-300",
                   !canComplete && "cursor-not-allowed opacity-40",
                 )}
               >
-                {done && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                <Check className="h-6 w-6" strokeWidth={3} aria-hidden />
               </button>
               <div className="min-w-0 flex-1">
-                <p className={clsx("font-medium", done ? "text-slate-400 line-through" : "text-slate-900")}>{t.title}</p>
-                {t.description && <p className="mt-0.5 text-sm text-slate-500">{t.description}</p>}
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                  <StatusPill status={t.status} />
-                  <span className="text-slate-500">
-                    {t.assignee === "buyer" ? (mode === "buyer" ? "Tú" : buyerName) : mode === "buyer" ? "Tu agente" : "Tú"}
+                <p className={clsx("text-lg font-semibold", isDone ? "text-cafe-500 line-through" : "text-cafe-900")}>{t.title}</p>
+                {t.description && <p className="mt-1 text-base text-cafe-700">{t.description}</p>}
+                <p className="mt-2 text-base text-cafe-700">
+                  {who(t)} ·{" "}
+                  <span className={clsx(overdue ? "font-bold text-red-700" : isDone ? "font-semibold text-green-800" : "text-cafe-700")}>
+                    {isDone ? "Hecha" : relativeDue(t.dueDate)}
                   </span>
-                </div>
+                </p>
               </div>
-              <span className={clsx("shrink-0 pt-0.5 text-sm", overdue ? "font-medium text-red-600" : "text-slate-500")}>
-                {done ? "Hecha" : relativeDue(t.dueDate)}
-              </span>
             </li>
           );
         })}
-        {visible.length === 0 && <li className="px-6 py-10 text-center text-sm text-slate-500">Nada por aquí. 🎉</li>}
+        {visible.length === 0 && (
+          <li className="px-5 py-10 text-center text-lg text-cafe-700 sm:px-7">
+            {tab === "open" ? (
+              <>
+                ¡Todo listo! No tienes pendientes. <span aria-hidden>🎉</span>
+              </>
+            ) : (
+              "Todavía no hay nada hecho."
+            )}
+          </li>
+        )}
       </ul>
 
       {mode === "agent" && dealId && (
-        <div className="border-t border-slate-100 px-5 py-3 sm:px-6">
+        <div className="border-t border-miel-100 px-5 py-5 sm:px-7">
           {adding ? (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                submitTask();
+                addTask();
               }}
-              className="flex flex-wrap items-center gap-2"
+              className="grid gap-3"
             >
               <input
                 autoFocus
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Nueva tarea…"
-                aria-label="Título de la tarea"
-                className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="¿Qué hay que hacer?"
+                aria-label="Nueva tarea"
+                className="min-h-[52px] rounded-2xl bg-white px-4 text-lg text-cafe-900 ring-2 ring-miel-200 placeholder:text-cafe-300 focus:outline-none focus:ring-4 focus:ring-cafe-600"
               />
-              <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} aria-label="Fecha límite" className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm" />
-              <select value={newAssignee} onChange={(e) => setNewAssignee(e.target.value as "agent" | "buyer")} aria-label="Responsable" className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm">
-                <option value="agent">Agente</option>
-                <option value="buyer">Comprador</option>
-              </select>
-              <button type="submit" className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">Agregar</button>
-              <button type="button" onClick={() => setAdding(false)} className="rounded-lg px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-100">Cancelar</button>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Fecha límite" className="min-h-[52px] rounded-2xl bg-white px-3 text-lg ring-2 ring-miel-200 focus:outline-none focus:ring-4 focus:ring-cafe-600" />
+                <select value={assignee} onChange={(e) => setAssignee(e.target.value as "agent" | "buyer")} aria-label="¿Quién lo hace?" className="min-h-[52px] rounded-2xl bg-white px-3 text-lg ring-2 ring-miel-200 focus:outline-none focus:ring-4 focus:ring-cafe-600">
+                  <option value="agent">Lo hago yo</option>
+                  <option value="buyer">Lo hace el cliente</option>
+                </select>
+              </div>
+              <div className="flex gap-3">
+                <button type="submit" className="min-h-[52px] rounded-2xl bg-cafe-600 px-6 text-lg font-semibold text-white hover:bg-cafe-700">Agregar</button>
+                <button type="button" onClick={() => setAdding(false)} className="min-h-[52px] rounded-2xl bg-miel-100 px-6 text-lg font-semibold text-cafe-900 hover:bg-miel-200">Cancelar</button>
+              </div>
             </form>
           ) : (
-            <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800">
-              <Plus className="h-4 w-4" aria-hidden /> Agregar tarea
+            <button type="button" onClick={() => setAdding(true)} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-miel-300 px-5 text-lg font-semibold text-cafe-900 hover:bg-miel-400">
+              <Plus className="h-5 w-5" aria-hidden /> Agregar tarea
             </button>
           )}
         </div>

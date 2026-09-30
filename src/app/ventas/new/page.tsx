@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/page-header";
 
 export default function NewVentaPage() {
   return (
-    <div className="mx-auto max-w-3xl">
-      <Link href="/ventas" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900">
-        <ArrowLeft className="h-4 w-4" aria-hidden /> Mis Ventas
+    <div className="mx-auto max-w-2xl">
+      <Link href="/ventas" className="mb-4 inline-flex min-h-[48px] items-center gap-2 rounded-2xl px-3 text-lg font-semibold text-cafe-600 hover:bg-miel-100">
+        <ArrowLeft className="h-5 w-5" aria-hidden /> Mis ventas
       </Link>
-      <PageHeader title="Nueva venta" subtitle="Empieza en la etapa Prospecto. Puedes agregar varios compradores." />
+      <PageHeader title="Nueva venta" subtitle="Llena estos datos. Puedes cambiarlos después." />
       <NewVentaForm />
     </div>
   );

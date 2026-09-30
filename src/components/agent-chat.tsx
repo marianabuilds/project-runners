@@ -45,13 +45,13 @@ export function AgentChat({ initial }: { initial: Message[] }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white px-5 py-4 sm:px-6">
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 text-white" aria-hidden>
+      <div className="flex items-center gap-3 border-b border-miel-100 bg-gradient-to-r from-miel-100 to-white px-5 py-4 sm:px-6">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-cafe-600 text-white" aria-hidden>
           <Sparkles className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Asistente de ventas</h2>
-          <p className="text-sm text-slate-500">Actualiza tareas y agenda eventos escribiendo, igual que por WhatsApp.</p>
+          <h2 className="text-lg font-semibold text-cafe-900">Asistente de ventas</h2>
+          <p className="text-base text-cafe-700">Actualiza tareas y agenda eventos escribiendo, igual que por WhatsApp.</p>
         </div>
       </div>
       <div className="max-h-72 space-y-3 overflow-y-auto px-5 py-4 sm:px-6" role="log" aria-live="polite" aria-label="Conversación con el asistente">
@@ -59,27 +59,27 @@ export function AgentChat({ initial }: { initial: Message[] }) {
           <div key={m.id} className={clsx("flex", m.from === "agent" ? "justify-end" : "justify-start")}>
             <p
               className={clsx(
-                "max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
-                m.from === "agent" && "rounded-br-md bg-blue-600 text-white",
-                m.from === "bot" && "rounded-bl-md bg-slate-100 text-slate-800",
-                m.from === "system" && "rounded-md bg-amber-50 text-xs text-amber-900 ring-1 ring-amber-200",
+                "max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2 text-base leading-relaxed",
+                m.from === "agent" && "rounded-br-md bg-cafe-600 text-white",
+                m.from === "bot" && "rounded-bl-md bg-miel-100 text-cafe-900",
+                m.from === "system" && "rounded-md bg-amber-50 text-sm text-amber-900 ring-1 ring-amber-200",
               )}
             >
               {m.text}
             </p>
           </div>
         ))}
-        {busy && <p className="text-xs text-slate-400">Escribiendo…</p>}
+        {busy && <p className="text-sm text-cafe-500">Escribiendo…</p>}
         <div ref={end} />
       </div>
-      <div className="border-t border-slate-100 px-5 py-3 sm:px-6">
+      <div className="border-t border-miel-100 px-5 py-3 sm:px-6">
         <div className="mb-3 flex flex-wrap gap-2">
           {chips.map((c) => (
             <button
               key={c.label}
               type="button"
               onClick={() => (c.send ? send(c.text) : (setText(c.text), input.current?.focus()))}
-              className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              className="rounded-full bg-miel-100 px-3 py-1.5 text-sm font-medium text-cafe-800 hover:bg-miel-200"
             >
               {c.label}
             </button>
@@ -98,9 +98,9 @@ export function AgentChat({ initial }: { initial: Message[] }) {
             onChange={(e) => setText(e.target.value)}
             placeholder="Ej.: nuevo evento tasación en Los Pinos 12 oct"
             aria-label="Mensaje al asistente"
-            className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="min-w-0 flex-1 rounded-xl border border-miel-200 px-3.5 py-2.5 text-base placeholder:text-cafe-500 focus:border-cafe-600 focus:outline-none focus:ring-2 focus:ring-miel-300"
           />
-          <button type="submit" disabled={busy || !text.trim()} className="grid w-11 place-items-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40" aria-label="Enviar">
+          <button type="submit" disabled={busy || !text.trim()} className="grid w-11 place-items-center rounded-xl bg-cafe-600 text-white hover:bg-cafe-700 disabled:opacity-40" aria-label="Enviar">
             <Send className="h-4 w-4" />
           </button>
         </form>

@@ -1,37 +1,43 @@
 import clsx from "clsx";
+import { Check } from "lucide-react";
 import type { TimelineEvent } from "@/lib/data";
 import { daysFromToday, fmtDate, relativeDue } from "@/lib/format";
 
 export function Timeline({ events }: { events: TimelineEvent[] }) {
   const nextIdx = events.findIndex((e) => daysFromToday(e.date) >= 0);
   return (
-    <ol className="relative px-5 py-5 sm:px-6">
+    <ol className="relative px-5 py-6 sm:px-7">
       {events.map((e, i) => {
         const past = daysFromToday(e.date) < 0;
         const next = i === nextIdx;
         return (
-          <li key={e.id} className="relative flex gap-4 pb-6 last:pb-0">
+          <li key={e.id} className="relative flex gap-4 pb-7 last:pb-0">
             {i < events.length - 1 && (
-              <span className={clsx("absolute left-[9px] top-6 h-full w-0.5", past ? "bg-blue-600" : "bg-slate-200")} aria-hidden />
+              <span className={clsx("absolute left-[15px] top-8 h-full w-1", past ? "bg-cafe-600" : "bg-miel-200")} aria-hidden />
             )}
             <span
               className={clsx(
-                "relative z-10 mt-1 h-5 w-5 shrink-0 rounded-full border-2",
-                past && "border-blue-600 bg-blue-600",
-                next && "border-blue-600 bg-white ring-4 ring-blue-100",
-                !past && !next && "border-slate-300 bg-white",
+                "relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full",
+                past && "bg-cafe-600 text-white",
+                next && "bg-miel-300 ring-4 ring-cafe-600",
+                !past && !next && "bg-white ring-2 ring-miel-200",
               )}
               aria-hidden
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-              <div>
-                <p className={clsx("font-medium", past ? "text-slate-500" : "text-slate-900")}>
-                  {e.name}
-                  {next && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Próximo</span>}
-                </p>
-                <p className="text-sm text-slate-500">{fmtDate(e.date)}</p>
-              </div>
-              <span className="text-sm text-slate-500">{past ? "Hecho" : relativeDue(e.date)}</span>
+            >
+              {past && <Check className="h-4 w-4" strokeWidth={3} />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className={clsx("text-lg font-semibold", past ? "text-cafe-500" : "text-cafe-900")}>
+                {e.name}
+                {next && (
+                  <span className="ml-2 inline-flex rounded-full bg-miel-300 px-3 py-0.5 align-middle text-sm font-semibold text-cafe-900">
+                    Siguiente
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 text-base text-cafe-700">
+                {fmtDate(e.date)} · {past ? "Hecho" : relativeDue(e.date)}
+              </p>
             </div>
           </li>
         );

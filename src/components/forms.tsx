@@ -9,14 +9,14 @@ import { api } from "@/lib/client";
 import { Card } from "./ui";
 
 const input =
-  "mt-1.5 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100";
+  "mt-2 block min-h-[56px] w-full rounded-2xl bg-white px-4 text-lg text-cafe-900 ring-2 ring-miel-200 placeholder:text-cafe-300 focus:outline-none focus:ring-4 focus:ring-cafe-600";
 
 function Field({ label, id, hint, className, ...props }: { label: string; id: string; hint?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={id} className="text-lg font-semibold text-cafe-900">{label}</label>
       <input id={id} name={id} className={input} {...props} />
-      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1 text-sm text-cafe-700">{hint}</p>}
     </div>
   );
 }
@@ -24,7 +24,7 @@ function Field({ label, id, hint, className, ...props }: { label: string; id: st
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card className="p-5 sm:p-6">
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">{title}</h2>
+      <h2 className="mb-4 text-2xl text-cafe-900">{title}</h2>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </Card>
   );
@@ -64,7 +64,7 @@ export function NewVentaForm() {
   return (
     <form onSubmit={submit} className="space-y-6">
       <Card className="p-5 sm:p-6">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Tipo de operación</h2>
+        <h2 className="mb-3 text-2xl text-cafe-900">Tipo de operación</h2>
         <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Tipo de operación">
           {(["venta", "alquiler"] as const).map((k) => (
             <button
@@ -73,7 +73,7 @@ export function NewVentaForm() {
               role="radio"
               aria-checked={kind === k}
               onClick={() => setKind(k)}
-              className={clsx("rounded-xl px-4 py-3 text-sm font-medium ring-2", kind === k ? (k === "venta" ? "bg-blue-50 text-blue-800 ring-blue-500" : "bg-violet-50 text-violet-800 ring-violet-500") : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}
+              className={clsx("min-h-[56px] rounded-2xl px-4 text-lg font-semibold ring-2", kind === k ? "bg-miel-300 text-cafe-900 ring-cafe-600" : "bg-white text-cafe-800 ring-miel-200 hover:bg-miel-50")}
             >
               {k === "venta" ? "Venta" : "Alquiler"}
             </button>
@@ -94,29 +94,29 @@ export function NewVentaForm() {
         <Field label={kind === "venta" ? "Vendedor" : "Propietario"} id="seller" placeholder="Jorge Salazar" />
       </Section>
       <Card className="p-5 sm:p-6">
-        <h2 className="mb-1 text-lg font-semibold text-slate-900">{kind === "venta" ? "Compradores" : "Inquilinos"}</h2>
-        <p className="mb-4 text-sm text-slate-500">Puedes agregar varias personas; la primera será la principal.</p>
+        <h2 className="mb-1 text-2xl text-cafe-900">{kind === "venta" ? "Compradores" : "Inquilinos"}</h2>
+        <p className="mb-4 text-base text-cafe-700">Puedes agregar varias personas; la primera será la principal.</p>
         <div className="space-y-4">
           {buyers.map((b, i) => (
-            <div key={i} className="grid gap-3 rounded-xl bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+            <div key={i} className="grid gap-3 rounded-xl bg-miel-50 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
               <Field label={`Nombre (${who} ${i + 1})`} id={`b-name-${i}`} value={b.name} onChange={(e) => setBuyer(i, { name: e.target.value })} />
               <Field label="Correo" id={`b-email-${i}`} type="email" value={b.email} onChange={(e) => setBuyer(i, { email: e.target.value })} />
               <Field label="WhatsApp" id={`b-phone-${i}`} type="tel" placeholder="+51 9…" value={b.phone} onChange={(e) => setBuyer(i, { phone: e.target.value })} />
               {buyers.length > 1 && (
-                <button type="button" onClick={() => setBuyers((bs) => bs.filter((_, j) => j !== i))} className="self-end rounded-lg p-2.5 text-slate-500 hover:bg-white" aria-label={`Quitar ${who} ${i + 1}`}>
+                <button type="button" onClick={() => setBuyers((bs) => bs.filter((_, j) => j !== i))} className="self-end rounded-xl p-2.5 text-cafe-700 hover:bg-white" aria-label={`Quitar ${who} ${i + 1}`}>
                   <Trash2 className="h-4 w-4" />
                 </button>
               )}
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => setBuyers((bs) => [...bs, { name: "", email: "", phone: "" }])} className="mt-3 flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800">
+        <button type="button" onClick={() => setBuyers((bs) => [...bs, { name: "", email: "", phone: "" }])} className="mt-3 flex items-center gap-1.5 text-base font-medium text-cafe-600 hover:text-cafe-800">
           <Plus className="h-4 w-4" aria-hidden /> Agregar otro {who}
         </button>
       </Card>
       <div className="flex justify-end gap-3">
-        <a href="/ventas" className="rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-white">Cancelar</a>
-        <button type="submit" disabled={pending} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+        <a href="/ventas" className="inline-flex min-h-[56px] items-center rounded-2xl bg-miel-300 px-6 text-lg font-semibold text-cafe-900 hover:bg-miel-400">Cancelar</a>
+        <button type="submit" disabled={pending} className="min-h-[56px] rounded-2xl bg-cafe-600 px-6 text-lg font-semibold text-white hover:bg-cafe-700 disabled:opacity-50">
           {pending ? "Creando…" : kind === "venta" ? "Crear venta" : "Crear alquiler"}
         </button>
       </div>
@@ -132,7 +132,7 @@ export function AddBuyerForm({ dealId, kind }: { dealId: string; kind: DealKind 
   const who = kind === "venta" ? "comprador" : "inquilino";
   if (!open)
     return (
-      <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800">
+      <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-base font-medium text-cafe-600 hover:text-cafe-800">
         <UserPlus className="h-4 w-4" aria-hidden /> Agregar {who}
       </button>
     );
@@ -150,19 +150,19 @@ export function AddBuyerForm({ dealId, kind }: { dealId: string; kind: DealKind 
       }}
       className="space-y-2"
     >
-      <input autoFocus value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Nombre completo" aria-label="Nombre" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+      <input autoFocus value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Nombre completo" aria-label="Nombre" className="w-full rounded-xl border border-miel-200 px-3 py-2 text-base" />
       <div className="grid grid-cols-2 gap-2">
-        <input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="WhatsApp" aria-label="WhatsApp" type="tel" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-        <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as BuyerRole })} aria-label="Rol" className="rounded-lg border border-slate-200 px-2 py-2 text-sm">
+        <input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="WhatsApp" aria-label="WhatsApp" type="tel" className="rounded-xl border border-miel-200 px-3 py-2 text-base" />
+        <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as BuyerRole })} aria-label="Rol" className="rounded-xl border border-miel-200 px-2 py-2 text-base">
           <option value="principal">Principal</option>
           <option value="co-comprador">Co-{who}</option>
           <option value="interesado">Interesado</option>
         </select>
       </div>
-      <input value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="Correo (opcional)" aria-label="Correo" type="email" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+      <input value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="Correo (opcional)" aria-label="Correo" type="email" className="w-full rounded-xl border border-miel-200 px-3 py-2 text-base" />
       <div className="flex gap-2">
-        <button type="submit" disabled={pending} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Agregar</button>
-        <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100">Cancelar</button>
+        <button type="submit" disabled={pending} className="rounded-xl bg-cafe-600 px-3 py-1.5 text-base font-medium text-white hover:bg-cafe-700 disabled:opacity-50">Agregar</button>
+        <button type="button" onClick={() => setOpen(false)} className="rounded-xl px-3 py-1.5 text-base text-cafe-800 hover:bg-miel-50">Cancelar</button>
       </div>
     </form>
   );

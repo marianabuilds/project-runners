@@ -1,99 +1,117 @@
 import Link from "next/link";
 import clsx from "clsx";
-import { Mail, Phone } from "lucide-react";
+import { Eye, Home, Mail, Phone } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { TaskList } from "@/components/task-list";
 import { Timeline } from "@/components/timeline";
-import { Avatar, Card, CardHeader, KindBadge, StageBadge, StageTracker } from "@/components/ui";
+import { Avatar, Button, Card, CardHeader, IconTile, KindBadge, StageTracker } from "@/components/ui";
 import { agent } from "@/lib/data";
-import { buyersLabel, daysFromToday, fmtDate, priceLabel, shortAddress } from "@/lib/format";
+import { buyersLabel, priceLabel, shortAddress } from "@/lib/format";
 import { dealById, eventsFor, getDeals, tasksFor } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-// Vista previa de lo que ve el comprador de una venta.
+// Vista previa de lo que ve la compradora (Lucía) de la venta d1.
 export default function BuyerView({ searchParams }: { searchParams: { venta?: string; comprador?: string } }) {
   const all = getDeals();
   const deal = (searchParams.venta && dealById(searchParams.venta)) || all[0];
   const buyer = deal.buyers.find((b) => b.id === searchParams.comprador) ?? deal.buyers[0];
   const myTasks = tasksFor(deal.id).filter((t) => t.assignee === "buyer");
   const events = eventsFor(deal.id);
-  const nextThree = events.filter((e) => daysFromToday(e.date) >= 0).slice(0, 3);
   const open = myTasks.filter((t) => t.status !== "completed").length;
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-4 space-y-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
-        <p>Vista previa: esto es lo que ve <strong>{buyer?.name}</strong>.</p>
-        <div className="flex flex-wrap gap-1.5" aria-label="Elegir operación">
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-8 flex items-center gap-3 rounded-2xl bg-miel-100 px-5 py-4 text-lg text-cafe-900 ring-1 ring-miel-300">
+        <Eye className="h-6 w-6 shrink-0 text-cafe-600" aria-hidden />
+        <p>
+          Así ve <strong>{buyer?.name}</strong> su {deal.kind === "venta" ? "venta" : "alquiler"}.
+        </p>
+      </div>
+      <div className="-mt-4 mb-8 space-y-3">
+        <div className="flex flex-wrap gap-2" aria-label="Elegir operación">
           {all.map((d) => (
-            <Link key={d.id} href={`/buyer?venta=${d.id}`} className={clsx("rounded-full px-2.5 py-1 text-xs font-medium", d.id === deal.id ? "bg-amber-600 text-white" : "bg-white text-amber-900 ring-1 ring-amber-200 hover:bg-amber-100")}>
+            <Link key={d.id} href={`/buyer?venta=${d.id}`} className={clsx("inline-flex min-h-[48px] items-center rounded-2xl px-4 text-base font-semibold", d.id === deal.id ? "bg-cafe-600 text-white" : "bg-miel-100 text-cafe-800 hover:bg-miel-200")}>
               {shortAddress(d)}
             </Link>
           ))}
         </div>
         {deal.buyers.length > 1 && (
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-base text-cafe-800">
             {buyersLabel(deal.kind)}:
             {deal.buyers.map((b) => (
-              <Link key={b.id} href={`/buyer?venta=${deal.id}&comprador=${b.id}`} className={clsx("rounded-full px-2.5 py-1 font-medium", b.id === buyer?.id ? "bg-amber-600 text-white" : "bg-white ring-1 ring-amber-200 hover:bg-amber-100")}>
+              <Link key={b.id} href={`/buyer?venta=${deal.id}&comprador=${b.id}`} className={clsx("inline-flex min-h-[44px] items-center rounded-2xl px-4 font-semibold", b.id === buyer?.id ? "bg-cafe-600 text-white" : "bg-miel-100 hover:bg-miel-200")}>
                 {b.name}
               </Link>
             ))}
           </div>
         )}
       </div>
+
       <PageHeader
         title={<>Hola, {buyer?.name.split(" ")[0]} <span aria-hidden>👋</span></>}
-        subtitle={<>Tienes {open} {open === 1 ? "cosa" : "cosas"} por hacer para {deal.kind === "venta" ? "tu nuevo hogar" : "tu alquiler"}.</>}
+        subtitle={
+          open === 0 ? (
+            "Por ahora no tienes nada pendiente."
+          ) : (
+            <>
+              Tienes <strong>{open}</strong> {open === 1 ? "cosa" : "cosas"} por hacer para {deal.kind === "venta" ? "tu nuevo hogar" : "tu alquiler"}.
+            </>
+          )
+        }
       />
 
-      <div className="space-y-6">
-        <Card className="overflow-hidden">
-          <div className="bg-gradient-to-br from-blue-50 to-white px-5 py-5 sm:px-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="flex items-center gap-2 text-sm text-slate-500">Tu {deal.kind === "venta" ? "hogar" : "alquiler"} <KindBadge kind={deal.kind} /></p>
-                <p className="text-xl font-semibold text-slate-900">{shortAddress(deal)}</p>
-                <p className="text-sm text-slate-600">{deal.address.district}, {deal.address.province}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-semibold tabular-nums text-slate-900">{priceLabel(deal, 0)}</p>
-                <StageBadge stage={deal.stage} />
+      <Card className="mb-8">
+        <div className="flex flex-wrap items-center gap-4 px-5 py-6 sm:px-7">
+          <IconTile>
+            <Home className="h-6 w-6" />
+          </IconTile>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-2 text-base text-cafe-700">{deal.kind === "venta" ? "Tu nuevo hogar" : "Tu alquiler"} <KindBadge kind={deal.kind} /></p>
+            <p className="font-heading text-2xl text-cafe-900 sm:text-3xl">{shortAddress(deal)}</p>
+            <p className="text-base text-cafe-700">
+              {deal.address.district}, {deal.address.province}
+            </p>
+          </div>
+          <p className="font-heading text-2xl tabular-nums text-cafe-900 sm:text-3xl">{priceLabel(deal)}</p>
+        </div>
+        <div className="border-t border-miel-100 px-3 py-7 sm:px-7">
+          <StageTracker stage={deal.stage} />
+        </div>
+      </Card>
+
+      <div className="grid gap-8 xl:grid-cols-3">
+        <div className="space-y-8 xl:col-span-2">
+          <Card>
+            <CardHeader title="Lo que te toca hacer" />
+            <TaskList initial={myTasks} buyerName={buyer?.name ?? ""} mode="buyer" />
+          </Card>
+          <Card>
+            <CardHeader title="Fechas de tu compra" />
+            <Timeline events={events} />
+          </Card>
+        </div>
+
+        <div>
+          <Card>
+            <CardHeader title="Tu agente" />
+            <div className="flex items-center gap-4 px-5 pt-6 sm:px-7">
+              <Avatar initials={agent.initials} size="lg" />
+              <div className="min-w-0">
+                <p className="text-lg font-semibold text-cafe-900">{agent.name}</p>
+                <p className="text-base text-cafe-700">{agent.agency}</p>
               </div>
             </div>
-          </div>
-          <div className="border-t border-slate-100 px-3 py-6 sm:px-6"><StageTracker stage={deal.stage} /></div>
-        </Card>
-
-        {nextThree.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-3">
-            {nextThree.map((e) => (
-              <Card key={e.id} className="px-4 py-3">
-                <p className="text-xs text-slate-500">{e.name}</p>
-                <p className="mt-1 font-semibold text-slate-900">{fmtDate(e.date)}</p>
-                <p className="text-xs text-slate-500">en {daysFromToday(e.date)} días</p>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        <Card>
-          <CardHeader title="Tus tareas" count={myTasks.length} />
-          <TaskList initial={myTasks} buyerName={buyer?.name ?? ""} mode="buyer" />
-        </Card>
-        <Card><CardHeader title="Calendario" /><Timeline events={events} /></Card>
-        <Card>
-          <CardHeader title="Tu agente" />
-          <div className="flex items-center gap-3 px-5 pt-4 sm:px-6">
-            <Avatar initials={agent.initials} size="lg" />
-            <div><p className="font-medium text-slate-900">{agent.name}</p><p className="text-sm text-slate-500">{agent.agency}</p></div>
-          </div>
-          <div className="space-y-2 px-5 py-4 text-sm sm:px-6">
-            <a href={`mailto:${agent.email}`} className="flex items-center gap-2 text-slate-700 hover:text-blue-700"><Mail className="h-4 w-4 text-slate-400" aria-hidden /> {agent.email}</a>
-            <a href={`tel:${agent.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-slate-700 hover:text-blue-700"><Phone className="h-4 w-4 text-slate-400" aria-hidden /> {agent.phone}</a>
-          </div>
-        </Card>
+            <div className="flex flex-col gap-3 px-5 py-6 sm:px-7">
+              <Button href={`tel:${agent.phone.replace(/\s/g, "")}`}>
+                <Phone className="h-5 w-5" aria-hidden /> Llamar
+              </Button>
+              <Button href={`mailto:${agent.email}`} variant="secondary">
+                <Mail className="h-5 w-5" aria-hidden /> Escribir correo
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

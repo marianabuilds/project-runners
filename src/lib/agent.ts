@@ -158,9 +158,9 @@ export function runAgent(text: string, source: Source): AgentResult {
   }
 
   // cambiar etapa
-  if (/(cambia|mueve|pasa|avanza|actualiza)\w*/.test(s) && /etapa|fase|a (prospecto|oferta|contrato|revision|cierre)/.test(s)) {
-    const stageWords: Record<Stage, string> = { prospect: "prospecto", offer: "oferta", under_contract: "contrato", due_diligence: "revision", closing: "cierre" };
-    const st = STAGES.find((x) => new RegExp(`(?:a|etapa|fase)\\s+(?:la\\s+)?${stageWords[x.key]}`).test(s)) ?? STAGES.find((x) => has(s, stageWords[x.key]));
+  if (/(cambia|mueve|pasa|avanza|actualiza)\w*/.test(s) && /etapa|fase|a (prospecto|interesado|oferta|contrato|revision|cierre)/.test(s)) {
+    const stageWords: Record<Stage, string> = { prospect: "(?:prospecto|interesado)", offer: "oferta", under_contract: "contrato", due_diligence: "revision", closing: "cierre" };
+    const st = STAGES.find((x) => new RegExp(`(?:a|etapa|fase)\\s+(?:la\\s+)?${stageWords[x.key]}`).test(s)) ?? STAGES.find((x) => new RegExp(`\\b${stageWords[x.key]}\\b`).test(s));
     const miss = needDeal("¿A cuál le cambio la etapa?");
     if (miss) return miss;
     if (!st) return { reply: `¿A qué etapa? Opciones: ${STAGES.map((x) => x.label).join(", ")}.`, changed: false };

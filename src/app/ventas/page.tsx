@@ -1,8 +1,8 @@
 import Link from "next/link";
 import clsx from "clsx";
-import { Plus } from "lucide-react";
+import { AlertCircle, ChevronRight, Plus } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { AvatarStack, Card, KindBadge, StageBadge } from "@/components/ui";
+import { AvatarStack, Button, Card, KindBadge, StageBadge } from "@/components/ui";
 import type { DealKind } from "@/lib/data";
 import { buyerSummary, daysFromToday, fmtShort, priceLabel, shortAddress } from "@/lib/format";
 import { getDeals, tasksFor } from "@/lib/store";
@@ -18,90 +18,69 @@ const tabs = [
 export default function VentasPage({ searchParams }: { searchParams: { tipo?: string } }) {
   const tipo = (["venta", "alquiler"].includes(searchParams.tipo ?? "") ? searchParams.tipo : "todas") as DealKind | "todas";
   const all = getDeals();
-  const deals = tipo === "todas" ? all : all.filter((d) => d.kind === tipo);
+  const sorted = (tipo === "todas" ? all : all.filter((d) => d.kind === tipo)).sort((a, b) => a.targetCloseDate.localeCompare(b.targetCloseDate));
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <PageHeader title="Mis Ventas" subtitle={`${all.filter((d) => d.kind === "venta").length} ventas · ${all.filter((d) => d.kind === "alquiler").length} alquileres activos`}>
-        <Link href="/ventas/new" className="mr-2 flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
-          <Plus className="h-4 w-4" aria-hidden /> Nueva venta
-        </Link>
+    <div className="mx-auto max-w-3xl">
+      <PageHeader title="Mis ventas" subtitle={`Tienes ${all.length} operaciones en curso.`}>
+        <Button href="/ventas/new"><Plus className="h-6 w-6" aria-hidden /> Nueva venta</Button>
       </PageHeader>
 
-      <nav className="mb-5 inline-flex gap-1 rounded-xl bg-slate-100 p-1" aria-label="Filtrar por tipo">
+      <nav className="mb-6 flex gap-2" aria-label="Filtrar por tipo">
         {tabs.map((t) => (
-          <Link key={t.key} href={t.key === "todas" ? "/ventas" : `/ventas?tipo=${t.key}`} aria-current={tipo === t.key ? "page" : undefined} className={clsx("rounded-lg px-4 py-1.5 text-sm", tipo === t.key ? "bg-white font-medium text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900")}>
+          <Link
+            key={t.key}
+            href={t.key === "todas" ? "/ventas" : `/ventas?tipo=${t.key}`}
+            aria-current={tipo === t.key ? "page" : undefined}
+            className={clsx("inline-flex min-h-[48px] flex-1 items-center justify-center rounded-2xl px-4 text-lg font-semibold sm:flex-none", tipo === t.key ? "bg-cafe-600 text-white" : "bg-miel-100 text-cafe-800 hover:bg-miel-200")}
+          >
             {t.label}
           </Link>
         ))}
       </nav>
 
-      {/* Móvil: tarjetas */}
-      <div className="space-y-3 md:hidden">
-        {deals.map((d) => {
-          const open = tasksFor(d.id).filter((t) => t.status !== "completed").length;
+      <ul className="space-y-5">
+        {sorted.map((d) => {
+          const overdue = tasksFor(d.id).filter((t) => t.status !== "completed" && daysFromToday(t.dueDate) < 0).length;
           return (
-            <Link key={d.id} href={`/ventas/${d.id}`} className="block">
-              <Card className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 font-medium text-slate-900"><span className="truncate">{shortAddress(d)}</span> <KindBadge kind={d.kind} /></p>
-                    <p className="text-sm text-slate-500">{d.address.district} · {buyerSummary(d)}</p>
+            <li key={d.id}>
+              <Card className="overflow-hidden">
+                <Link href={`/ventas/${d.id}`} className="block px-5 py-5 hover:bg-miel-50 sm:px-7 sm:py-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-heading text-2xl text-cafe-900">{shortAddress(d)}</p>
+                      <p className="mt-1 text-lg text-cafe-700">{d.address.district}</p>
+                    </div>
+                    <ChevronRight className="mt-1 h-7 w-7 shrink-0 text-cafe-500" aria-hidden />
                   </div>
-                  <StageBadge stage={d.stage} />
-                </div>
-                <div className="mt-3 flex items-center justify-between text-sm">
-                  <span className="font-semibold tabular-nums">{priceLabel(d)}</span>
-                  <span className="text-slate-500">{open} {open === 1 ? "abierta" : "abiertas"} · cierra {fmtShort(d.targetCloseDate)}</span>
-                </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <KindBadge kind={d.kind} />
+                    <StageBadge stage={d.stage} />
+                  </div>
+                  <div className="mt-4 flex items-center gap-3">
+                    <AvatarStack buyers={d.buyers} />
+                    <span className="text-lg text-cafe-800">{d.kind === "venta" ? "Comprador/a" : "Inquilino/a"}: <strong className="font-semibold">{buyerSummary(d)}</strong></span>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-miel-100 pt-4">
+                    <span className="text-xl font-semibold tabular-nums text-cafe-900">{priceLabel(d)}</span>
+                    <span className="text-lg text-cafe-700">{d.kind === "venta" ? "Cierre" : "Inicio"}: {fmtShort(d.targetCloseDate)}</span>
+                  </div>
+
+                  {overdue > 0 && (
+                    <p className="mt-4 flex items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-base font-semibold text-red-700">
+                      <AlertCircle className="h-5 w-5 shrink-0" aria-hidden />
+                      {overdue === 1 ? "Tienes 1 tarea atrasada" : `Tienes ${overdue} tareas atrasadas`}
+                    </p>
+                  )}
+                </Link>
               </Card>
-            </Link>
+            </li>
           );
         })}
-      </div>
-
-      {/* Escritorio: tabla */}
-      <Card className="hidden overflow-hidden md:block">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50/60 text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th scope="col" className="px-6 py-3 font-medium">Propiedad</th>
-              <th scope="col" className="px-4 py-3 font-medium">Tipo</th>
-              <th scope="col" className="px-4 py-3 font-medium">Compradores</th>
-              <th scope="col" className="px-4 py-3 font-medium">Etapa</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Precio</th>
-              <th scope="col" className="px-4 py-3 font-medium">Cierre</th>
-              <th scope="col" className="px-6 py-3 text-right font-medium">Tareas</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {deals.map((d) => {
-              const open = tasksFor(d.id).filter((t) => t.status !== "completed");
-              const overdue = open.filter((t) => daysFromToday(t.dueDate) < 0).length;
-              return (
-                <tr key={d.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4">
-                    <Link href={`/ventas/${d.id}`} className="font-medium text-slate-900 hover:text-blue-700">{shortAddress(d)}</Link>
-                    <p className="text-slate-500">{d.address.district}, {d.address.province}</p>
-                  </td>
-                  <td className="px-4 py-4"><KindBadge kind={d.kind} /></td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2"><AvatarStack buyers={d.buyers} size="sm" /><span className="truncate">{buyerSummary(d)}</span></div>
-                  </td>
-                  <td className="px-4 py-4"><StageBadge stage={d.stage} /></td>
-                  <td className="px-4 py-4 text-right font-medium tabular-nums">{priceLabel(d)}</td>
-                  <td className="px-4 py-4 text-slate-600">{fmtShort(d.targetCloseDate)}</td>
-                  <td className="px-6 py-4 text-right tabular-nums">
-                    {open.length}
-                    {overdue > 0 && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">{overdue} con retraso</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {deals.length === 0 && <p className="px-6 py-10 text-center text-sm text-slate-500">No hay operaciones de este tipo.</p>}
-      </Card>
+        {sorted.length === 0 && <li className="rounded-3xl bg-white px-6 py-10 text-center text-lg text-cafe-700 ring-1 ring-miel-200">No hay operaciones de este tipo.</li>}
+      </ul>
     </div>
   );
 }

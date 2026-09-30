@@ -9,12 +9,12 @@ export const dynamic = "force-dynamic";
 export default function WhatsAppPage() {
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="WhatsApp" subtitle="Simulador: lo que escribas aquí actualiza el dashboard, y viceversa." />
-      <div className="space-y-6">
+      <PageHeader title="WhatsApp" subtitle="Lo que escribas aquí actualiza tus ventas, y viceversa. (Simulador)" />
+      <div className="space-y-8">
         <WhatsAppSim initial={getMessages("whatsapp")} />
         <Card className="p-5 sm:p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900"><Link2 className="h-4 w-4" aria-hidden /> Cómo se vincula</h2>
-          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-600">
+          <h2 className="flex items-center gap-2 text-2xl text-cafe-900"><Link2 className="h-5 w-5" aria-hidden /> Cómo se vincula</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-lg text-cafe-800">
             <li>Cada mensaje pasa por el mismo asistente del dashboard (<code>/api/whatsapp</code>).</li>
             <li>Los cambios aparecen en Tareas, Calendario, Mis Ventas y en la actividad con el ícono de WhatsApp.</li>
             <li>Los cambios hechos en el dashboard se reflejan aquí como avisos del sistema.</li>

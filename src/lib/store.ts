@@ -55,6 +55,9 @@ const now = () => new Date().toISOString().slice(0, 19);
 export const getDeals = () => load().deals;
 export const getTasks = () => load().tasks;
 export const getEvents = () => load().timeline;
+// Tareas que le tocan a la agente ("Lo haces tú"), abiertas.
+export const getAgentTasks = () =>
+  load().tasks.filter((t) => t.assignee === "agent" && t.status !== "completed").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 export const dealById = (id: string) => load().deals.find((d) => d.id === id);
 export const tasksFor = (dealId: string) => load().tasks.filter((t) => t.dealId === dealId);
 export const eventsFor = (dealId: string) =>

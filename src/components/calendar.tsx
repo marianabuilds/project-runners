@@ -8,19 +8,13 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, ListChecks, Plus } from "lucide-react";
 import { EVENT_TYPES, TODAY, type DealKind, type EventType } from "@/lib/data";
 import { api } from "@/lib/client";
+import { eventChip as chip } from "@/lib/calendar-styles";
 import { KindBadge } from "./ui";
 
 export type CalEvent = { id: string; name: string; date: string; type: EventType; dealId: string };
 export type CalTask = { id: string; title: string; dueDate: string; dealId: string; done: boolean };
 export type CalDeal = { id: string; label: string; kind: DealKind };
 
-const chip: Record<EventType, string> = {
-  offer: "bg-violet-100 text-violet-800",
-  inspection: "bg-amber-100 text-amber-800",
-  appraisal: "bg-sky-100 text-sky-800",
-  closing: "bg-emerald-100 text-emerald-800",
-  custom: "bg-miel-100 text-cafe-800",
-};
 const weekdays = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 const key = (d: Date) => format(d, "yyyy-MM-dd");
 

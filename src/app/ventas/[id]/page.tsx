@@ -32,7 +32,7 @@ export default function VentaPage({ params }: { params: { id: string } }) {
   const rental = deal.kind === "alquiler";
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="container-page">
       <Link href="/ventas" className="mb-4 inline-flex min-h-[48px] items-center gap-2 rounded-2xl px-3 text-lg font-semibold text-cafe-600 hover:bg-miel-100">
         <ArrowLeft className="h-5 w-5" aria-hidden /> Mis ventas
       </Link>

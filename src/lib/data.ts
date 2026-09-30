@@ -66,6 +66,8 @@ export type Deal = {
   id: string;
   address: { street: string; number: string; district: string; province: string; department: string };
   kind: DealKind;
+  /** Foto real de la propiedad (opcional). Sin ella se muestra una ilustración generada. */
+  imageUrl?: string;
   buyers: Buyer[];
   pricePen: number;
   listingPricePen?: number;

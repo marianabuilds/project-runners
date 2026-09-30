@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
-import { Home, Building2, ListChecks, CalendarDays, MessageCircle, UserRound, Eye, Menu, X, Plus } from "lucide-react";
+import { Home, Building2, ListChecks, CalendarDays, UserRound, Eye, Menu, X, Plus } from "lucide-react";
 import { agent } from "@/lib/data";
 import { Avatar } from "./ui";
 
@@ -13,7 +13,6 @@ const items = [
   { href: "/ventas", label: "Mis ventas", icon: Building2 },
   { href: "/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/tasks", label: "Pendientes", icon: ListChecks },
-  { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { href: "/buyer", label: "Lo que ve el cliente", icon: Eye },
   { href: "/settings", label: "Mi cuenta", icon: UserRound },
 ];

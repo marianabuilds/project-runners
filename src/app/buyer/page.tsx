@@ -21,7 +21,7 @@ export default function BuyerView({ searchParams }: { searchParams: { venta?: st
   const open = myTasks.filter((t) => t.status !== "completed").length;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="container-page">
       <div className="mb-8 flex items-center gap-3 rounded-2xl bg-miel-100 px-5 py-4 text-lg text-cafe-900 ring-1 ring-miel-300">
         <Eye className="h-6 w-6 shrink-0 text-cafe-600" aria-hidden />
         <p>

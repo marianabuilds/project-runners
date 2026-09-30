@@ -210,3 +210,52 @@ export function AvatarStack({ buyers }: { buyers: Buyer[] }) {
     </div>
   );
 }
+
+/** Foto de la propiedad; sin `imageUrl` se dibuja una ilustración miel/café distinta por propiedad. */
+export function PropertyImage({ id, imageUrl, alt, className }: { id: string; imageUrl?: string; alt: string; className?: string }) {
+  if (imageUrl)
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={imageUrl} alt={alt} className={clsx("h-full w-full object-cover", className)} />;
+  const h = Array.from(id).reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+  const variant = h % 3;
+  const sky = ["#FCF4D3", "#F9EBAE", "#FEFBEF"][(h >> 2) % 3];
+  const wall = ["#F5DD7B", "#EBC94F", "#C9A15A"][(h >> 4) % 3];
+  const roof = ["#83580B", "#6B4709", "#523607"][(h >> 6) % 3];
+  return (
+    <svg viewBox="0 0 320 200" className={clsx("h-full w-full", className)} role="img" aria-label={alt} preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="200" fill={sky} />
+      <circle cx={70 + (h % 5) * 40} cy="45" r="20" fill="#FFFDF7" opacity="0.9" />
+      <rect y="160" width="320" height="40" fill="#A06E14" opacity="0.25" />
+      {variant === 0 && (
+        <g>
+          <rect x="95" y="90" width="130" height="80" fill={wall} />
+          <polygon points="80,92 160,42 240,92" fill={roof} />
+          <rect x="145" y="118" width="30" height="52" fill="#3A2605" />
+          <rect x="108" y="108" width="24" height="24" fill="#FFFDF7" />
+          <rect x="188" y="108" width="24" height="24" fill="#FFFDF7" />
+        </g>
+      )}
+      {variant === 1 && (
+        <g>
+          <rect x="105" y="40" width="110" height="130" fill={wall} />
+          <rect x="105" y="40" width="110" height="10" fill={roof} />
+          {[0, 1, 2, 3].map((r) =>
+            [0, 1, 2].map((c) => <rect key={`${r}${c}`} x={118 + c * 32} y={62 + r * 26} width="18" height="16" fill="#FFFDF7" />),
+          )}
+          <rect x="149" y="146" width="22" height="24" fill="#3A2605" />
+        </g>
+      )}
+      {variant === 2 && (
+        <g>
+          <rect x="60" y="100" width="110" height="70" fill={wall} />
+          <rect x="170" y="70" width="90" height="100" fill={roof} opacity="0.9" />
+          <rect x="60" y="94" width="110" height="8" fill={roof} />
+          <rect x="80" y="118" width="22" height="22" fill="#FFFDF7" />
+          <rect x="120" y="118" width="22" height="22" fill="#FFFDF7" />
+          {[0, 1].map((r) => [0, 1].map((c) => <rect key={`${r}${c}`} x={186 + c * 34} y={86 + r * 32} width="20" height="20" fill="#FFFDF7" />))}
+          <rect x="203" y="146" width="24" height="24" fill="#3A2605" />
+        </g>
+      )}
+    </svg>
+  );
+}

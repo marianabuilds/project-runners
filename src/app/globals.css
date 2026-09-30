@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Ancho único del contenido en todas las pestañas (54rem = 864px) */
+  .container-page {
+    @apply mx-auto w-full max-w-[54rem];
+  }
+}
+
 h1,
 h2,
 h3 {

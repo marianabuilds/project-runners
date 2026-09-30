@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default function CalendarioPage() {
   const deals = getDeals();
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="container-page">
       <PageHeader title="Calendario" subtitle="Eventos y vencimientos de todas tus ventas y alquileres" />
       <Calendar
         deals={deals.map((d) => ({ id: d.id, label: shortAddress(d), kind: d.kind }))}

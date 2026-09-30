@@ -1,7 +1,11 @@
-import { Bell, Mail, Phone } from "lucide-react";
+import { Bell, Link2, Mail, MessageCircle, Phone } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { Avatar, Card, IconTile } from "@/components/ui";
+import { Avatar, Card, CardHeader, IconTile } from "@/components/ui";
+import { WhatsAppSim } from "@/components/whatsapp-sim";
 import { agent } from "@/lib/data";
+import { getMessages } from "@/lib/store";
+
+export const dynamic = "force-dynamic";
 
 export default function SettingsPage() {
   const rows = [
@@ -15,7 +19,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="container-page">
       <PageHeader title="Mi cuenta" />
       <Card>
         <div className="flex items-center gap-4 border-b border-miel-100 px-5 py-6 sm:px-7">
@@ -38,6 +42,22 @@ export default function SettingsPage() {
             </div>
           ))}
         </dl>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader title="WhatsApp" subtitle="Lo que escribas aquí actualiza tus ventas, y viceversa (simulador)" />
+        <div className="px-3 py-6 sm:px-7">
+          <WhatsAppSim initial={getMessages("whatsapp")} />
+        </div>
+        <div className="border-t border-miel-100 px-5 py-6 sm:px-7">
+          <h3 className="flex items-center gap-2 text-xl text-cafe-900"><Link2 className="h-5 w-5" aria-hidden /> Cómo se vincula</h3>
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-lg text-cafe-800">
+            <li>Cada mensaje pasa por el mismo asistente de Inicio.</li>
+            <li>Los cambios aparecen en Pendientes, Calendario y Mis ventas, con el ícono <MessageCircle className="inline h-5 w-5 align-text-bottom text-green-700" aria-label="WhatsApp" />.</li>
+            <li>Los cambios hechos en la app se reflejan aquí como avisos.</li>
+            <li>Para conectar tu número real hace falta una cuenta de WhatsApp Business (Meta) y un webhook público hacia <code>/api/whatsapp</code>.</li>
+          </ul>
+        </div>
       </Card>
     </div>
   );

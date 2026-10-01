@@ -9,6 +9,8 @@ type Shared = { tasks: Task[]; stages: Record<string, Stage>; activity: AuditEnt
 
 const KEY = "trato-demo-v1";
 const ROLE_KEY = "trato-demo-role";
+const DEAL_KEY = "trato-demo-deal";
+export type Scope = string | "all";
 
 const seed = (): Shared => ({
   tasks: seedTasks,
@@ -22,12 +24,14 @@ type Ctx = Shared & {
   me: (typeof accounts)[Role];
   setRole: (r: Role) => void;
   deals: Deal[];
-  visibleTasks: Task[];
+  visibleTasks: Task[]; // the viewer's own tasks, all of their negocios
   visibleActivity: AuditEntry[];
+  activeDealId: Scope;
+  setActiveDeal: (id: Scope) => void;
+  scoped: { isAll: boolean; deals: Deal[]; tasks: Task[]; activity: AuditEntry[] };
   stageOf: (dealId: string) => Stage;
   setTaskDone: (id: string, done: boolean) => void;
   completeMany: (ids: string[]) => void;
-  remind: (id: string) => void;
   setStage: (dealId: string, stage: Stage) => void;
   syncWhatsApp: () => void;
 };
@@ -52,6 +56,7 @@ const safe = {
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<Shared>(seed);
   const [role, setRoleState] = useState<Role>("agent");
+  const [activeDeal, setActiveDealState] = useState<Scope | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -63,6 +68,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
     const r = safe.get(typeof window === "undefined" ? undefined : sessionStorage, ROLE_KEY) as Role | null;
     if (r && r in accounts) setRoleState(r);
+    const d = safe.get(typeof window === "undefined" ? undefined : sessionStorage, DEAL_KEY);
+    if (d) setActiveDealState(d);
     setReady(true);
     const onStorage = (e: StorageEvent) => {
       if (e.key === KEY && e.newValue) {
@@ -81,7 +88,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const setRole = useCallback((r: Role) => {
     setRoleState(r);
+    setActiveDealState(null);
     safe.set(sessionStorage, ROLE_KEY, r);
+    safe.set(sessionStorage, DEAL_KEY, "");
+  }, []);
+
+  const setActiveDeal = useCallback((id: Scope) => {
+    setActiveDealState(id);
+    safe.set(sessionStorage, DEAL_KEY, id);
   }, []);
 
   const me = accounts[role];
@@ -117,15 +131,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [log],
   );
 
-  const remind = useCallback(
-    (id: string) =>
-      setState((s) => {
-        const t = s.tasks.find((x) => x.id === id);
-        return t ? { ...s, activity: [log(t.dealId, `Envió un recordatorio: "${t.title}"`), ...s.activity] } : s;
-      }),
-    [log],
-  );
-
   const setStage = useCallback(
     (dealId: string, stage: Stage) =>
       setState((s) => ({ ...s, stages: { ...s.stages, [dealId]: stage }, activity: [log(dealId, `Movió la etapa a ${STAGES.find((x) => x.key === stage)?.label ?? stage}`), ...s.activity] })),
@@ -140,9 +145,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<Ctx>(() => {
     const ids = me.dealIds === "all" ? allDeals.map((d) => d.id) : me.dealIds;
     const deals = allDeals.filter((d) => ids.includes(d.id)).map((d) => ({ ...d, stage: state.stages[d.id] ?? d.stage }));
-    // Buyers/sellers see their own tasks plus the agent's (shared progress, no loose ends); never the other party's.
-    const visibleTasks = state.tasks.filter((t) => ids.includes(t.dealId) && (role === "agent" || t.assignee === role || t.assignee === "agent"));
+    // Everyone sees only their own tasks; progress by others shows up in the shared activity feed.
+    const visibleTasks = state.tasks.filter((t) => ids.includes(t.dealId) && t.assignee === role);
     const visibleActivity = state.activity.filter((a) => ids.includes(a.dealId));
+    // Scope: one negocio (default) or "all" (consolidated). Single-negocio roles are always scoped.
+    const canAll = deals.length > 1;
+    const active: Scope = activeDeal === "all" && canAll ? "all" : deals.find((d) => d.id === activeDeal)?.id ?? deals[0]?.id ?? "all";
+    const inScope = (id: string) => active === "all" || id === active;
+    const scoped = {
+      isAll: active === "all",
+      deals: deals.filter((d) => inScope(d.id)),
+      tasks: visibleTasks.filter((t) => inScope(t.dealId)),
+      activity: visibleActivity.filter((a) => inScope(a.dealId)),
+    };
     return {
       ...state,
       role,
@@ -151,14 +166,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       deals,
       visibleTasks,
       visibleActivity,
+      activeDealId: active,
+      setActiveDeal,
+      scoped,
       stageOf: (id) => state.stages[id] ?? allDeals.find((d) => d.id === id)!.stage,
       setTaskDone,
       completeMany,
-      remind,
       setStage,
       syncWhatsApp,
     };
-  }, [state, role, me, setRole, setTaskDone, completeMany, remind, setStage, syncWhatsApp]);
+  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, syncWhatsApp]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

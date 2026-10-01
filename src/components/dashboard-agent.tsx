@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import clsx from "clsx";
-import { Bell, CalendarClock, CalendarDays, ChevronRight, MessageCircle, ListChecks, Target, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
-import { Badge, ownerBadge } from "@/components/agenda";
-import { TaskCtaButton } from "@/components/task-cta";
-import { WhatsAppCard } from "@/components/whatsapp-card";
+import { Bell, CalendarClock, CalendarDays, ChevronRight, MessageCircle, ListChecks, Target, TrendingUp, TriangleAlert } from "lucide-react";
+import { Checklist } from "@/components/checklist";
 import { ActivityFeed } from "@/components/activity-feed";
 import { WeekStrip } from "@/components/week-strip";
 import { BarChart, ProgressRing, Sparkline, StackedBar } from "@/components/charts";
-import { Avatar, Card, CardHeader, Donut, StageBadge, stageColor } from "@/components/ui";
-import { agent, dealById, STAGES, TODAY } from "@/lib/data";
+import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "@/components/ui";
+import { agent, STAGES, TODAY } from "@/lib/data";
 import { fmtDateTime, useStore } from "@/lib/store";
 import { allItems, groupByDate, weekOf, WEEKDAYS_LONG, weekdayIndex } from "@/lib/calendar";
-import { daysFromToday, fmtLong, fmtShort, pen, penShort, relativeDue, shortAddress, stageIndex } from "@/lib/format";
+import { daysFromToday, fmtLong, fmtShort, pen, shortAddress, stageIndex } from "@/lib/format";
 
 const IconBox = ({ children, className }: { children: React.ReactNode; className: string }) => (
   <span className={clsx("grid h-10 w-10 shrink-0 place-items-center rounded-xl", className)} aria-hidden>
@@ -22,30 +20,27 @@ const IconBox = ({ children, className }: { children: React.ReactNode; className
 );
 
 export function AgentDashboard() {
-  const { deals, visibleTasks: tasks, lastSync, role } = useStore();
+  const { scoped, lastSync } = useStore();
+  const deals = scoped.deals;
+  const tasks = scoped.tasks;
+  const isAll = scoped.isAll;
   const openTasks = tasks.filter((t) => t.status !== "completed").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   const overdue = openTasks.filter((t) => daysFromToday(t.dueDate) < 0);
   const dueToday = openTasks.filter((t) => t.dueDate === TODAY);
   const week = weekOf(TODAY);
   const byDate = groupByDate(allItems(tasks));
   const perDay = week.map((d) => (byDate.get(d) ?? []).length);
-  const pipelineTotal = deals.reduce((a, d) => a + d.pricePen, 0);
-  const byStage = STAGES.map((s) => {
-    const ds = deals.filter((d) => d.stage === s.key);
-    return { ...s, count: ds.length, value: ds.reduce((a, d) => a + d.pricePen, 0) };
-  });
   const closingSoon = deals.filter((d) => daysFromToday(d.targetCloseDate) <= 31).length;
   const done = tasks.filter((t) => t.status === "completed").length;
   const inProgress = tasks.filter((t) => t.status === "in_progress").length;
   const pendingCount = tasks.length - done - inProgress;
-  const completion = (done / tasks.length) * 100;
+  const completion = tasks.length ? (done / tasks.length) * 100 : 0;
   const closings = [...deals].sort((a, b) => a.targetCloseDate.localeCompare(b.targetCloseDate));
 
   const kpis = [
-    { label: "Para hoy", value: dueToday.length, icon: <CalendarClock className="h-5 w-5" />, tile: "bg-sky text-navy", spark: perDay, hint: "tareas con vencimiento hoy" },
-    { label: "Atrasadas", value: overdue.length, icon: <TriangleAlert className="h-5 w-5" />, tile: overdue.length ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600", hint: overdue.length ? "requieren atención" : "todo al día" },
-    { label: "Cierres en 30 días", value: closingSoon, icon: <Target className="h-5 w-5" />, tile: "bg-accent text-navy", hint: "negocios por cerrar" },
-    { label: "Valor del pipeline", value: penShort(pipelineTotal), icon: <Wallet className="h-5 w-5" />, tile: "bg-navy text-white", spark: byStage.map((s) => s.value), hint: `${deals.length} negocios activos` },
+    { label: "Para hoy", value: dueToday.length, icon: <CalendarClock className="h-5 w-5" />, tile: "bg-sky text-ink", spark: perDay, hint: "tareas con vencimiento hoy" },
+    { label: "Atrasadas", value: overdue.length, icon: <TriangleAlert className="h-5 w-5" />, tile: overdue.length ? "bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", hint: overdue.length ? "requieren atención" : "todo al día" },
+    { label: "Cierres en 30 días", value: closingSoon, icon: <Target className="h-5 w-5" />, tile: "bg-accent text-on-accent", hint: "negocios por cerrar" },
   ];
 
   return (
@@ -82,24 +77,24 @@ export function AgentDashboard() {
 
         {/* KPI tiles */}
         {kpis.map((k) => (
-          <Card key={k.label} className="p-5 sm:col-span-1 lg:col-span-3">
+          <Card key={k.label} className="p-5 lg:col-span-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm text-navy-200">{k.label}</p>
-                <p className="mt-1 text-3xl font-semibold tabular-nums leading-none text-navy">{k.value}</p>
+                <p className="text-sm text-ink-muted">{k.label}</p>
+                <p className="mt-1 text-3xl font-semibold tabular-nums leading-none text-ink">{k.value}</p>
               </div>
               <IconBox className={k.tile}>{k.icon}</IconBox>
             </div>
             <div className="mt-4 flex items-end justify-between gap-3">
-              <p className="text-xs text-navy-200">{k.hint}</p>
-              {k.spark && <div className="w-24 text-navy"><Sparkline points={k.spark} /></div>}
+              <p className="text-xs text-ink-muted">{k.hint}</p>
+              {k.spark && <div className="w-24 text-ink"><Sparkline points={k.spark} /></div>}
             </div>
           </Card>
         ))}
 
         {/* Left: to do + deals · Right: week + recent activity */}
         <div className="space-y-5 lg:col-span-7">
-        {/* To do */}
+        {/* To do: plain checklist, own tasks only */}
         <Card tone="sky">
           <CardHeader
             tone="sky"
@@ -109,46 +104,18 @@ export function AgentDashboard() {
             subtitle={overdue.length ? `${overdue.length} atrasadas` : undefined}
             icon={<IconBox className="bg-navy text-white"><ListChecks className="h-5 w-5" /></IconBox>}
           />
-          <ul className="space-y-2 p-3 sm:p-4">
-            {openTasks.slice(0, 6).map((t) => {
-              const deal = dealById(t.dealId)!;
-              const late = daysFromToday(t.dueDate) < 0;
-              const buyer = t.assignee !== "agent";
-              return (
-                <li
-                  key={t.id}
-                  className={clsx(
-                    "flex items-center gap-3 rounded-2xl border-l-4 bg-white p-3 shadow-sm ring-1 ring-navy/5",
-                    late ? "border-red-500" : buyer ? "border-accent" : "border-navy",
-                  )}
-                >
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/deals/${deal.id}`} className="block truncate font-medium text-navy hover:underline">
-                      {t.title}
-                    </Link>
-                    <p className="mt-0.5 truncate text-xs text-navy-200">
-                      {shortAddress(deal)} · {t.assignee === "buyer" ? deal.buyer.name : t.assignee === "seller" ? deal.sellerName : "Tú"}
-                    </p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                      {late && <Badge kind="atrasada" />}
-                      <Badge kind={ownerBadge(t.assignee, role)} />
-                      <span className={clsx("text-[11px]", late ? "font-medium text-red-600" : "text-navy-200")}>{relativeDue(t.dueDate)}</span>
-                    </div>
-                  </div>
-                  <TaskCtaButton task={t} />
-                </li>
-              );
-            })}
-          </ul>
+          <div className="bg-surface">
+            <Checklist tasks={tasks} grouped={isAll} />
+          </div>
         </Card>
 
-        {/* Active deals */}
+        {isAll && (
         <Card>
           <CardHeader
             title="Negocios activos"
             count={deals.length}
             href="/deals"
-            icon={<IconBox className="bg-sky text-navy"><TrendingUp className="h-5 w-5" /></IconBox>}
+            icon={<IconBox className="bg-sky text-ink"><TrendingUp className="h-5 w-5" /></IconBox>}
           />
           <ul className="grid grid-cols-1 gap-2 p-3 sm:p-4 xl:grid-cols-2">
             {deals.map((d) => {
@@ -159,27 +126,48 @@ export function AgentDashboard() {
                     <div className="flex items-center gap-3">
                       <Avatar initials={d.buyer.initials} />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-navy">{shortAddress(d)}</p>
-                        <p className="truncate text-sm text-navy-200">
+                        <p className="truncate font-medium text-ink">{shortAddress(d)}</p>
+                        <p className="truncate text-sm text-ink-muted">
                           {d.address.district} · {d.buyer.name}
                         </p>
                       </div>
                     </div>
-                    <p className="mt-3 text-lg font-semibold tabular-nums text-navy">{pen(d.pricePen, 0)}</p>
+                    <p className="mt-3 text-lg font-semibold tabular-nums text-ink">{pen(d.pricePen, 0)}</p>
                     <div className="mt-2 flex items-center gap-3">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label="Avance de etapa">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label="Avance de etapa">
                         <div className="h-full rounded-full bg-navy" style={{ width: `${pct}%` }} />
                       </div>
                       <StageBadge stage={d.stage} />
                     </div>
-                    <p className="mt-2 text-xs text-navy-200">cierra {fmtShort(d.targetCloseDate)}</p>
+                    <p className="mt-2 text-xs text-ink-muted">cierra {fmtShort(d.targetCloseDate)}</p>
                   </Link>
                 </li>
               );
             })}
           </ul>
         </Card>
-
+        )}
+        {!isAll && deals[0] && (
+          <Card>
+            <CardHeader title="Resumen del negocio" action={<StageBadge stage={deals[0].stage} />} />
+            <div className="px-3 py-6 sm:px-6">
+              <StageTracker stage={deals[0].stage} />
+            </div>
+            <dl className="grid grid-cols-2 gap-3 border-t border-navy-100 p-5 text-sm sm:grid-cols-4">
+              {[
+                ["Precio", pen(deals[0].pricePen, 0)],
+                ["Comprador", deals[0].buyer.name],
+                ["Vendedor", deals[0].sellerName],
+                ["Cierre", fmtShort(deals[0].targetCloseDate)],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <dt className="text-xs text-ink-muted">{k}</dt>
+                  <dd className="mt-0.5 font-medium text-ink">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
+        )}
         </div>
         <div className="space-y-5 lg:col-span-5">
         {/* Week strip + selected-day agenda */}
@@ -187,9 +175,9 @@ export function AgentDashboard() {
           <CardHeader
             title="Esta semana"
             subtitle="Toca un día para ver sus pendientes"
-            icon={<IconBox className="bg-sky text-navy"><CalendarDays className="h-5 w-5" /></IconBox>}
+            icon={<IconBox className="bg-sky text-ink"><CalendarDays className="h-5 w-5" /></IconBox>}
             action={
-              <Link href="/calendar" className="flex items-center gap-0.5 text-sm font-medium text-navy hover:text-navy-200">
+              <Link href="/calendar" className="flex items-center gap-0.5 text-sm font-medium text-ink hover:text-ink-muted">
                 Calendario <ChevronRight className="h-4 w-4" aria-hidden />
               </Link>
             }
@@ -210,15 +198,15 @@ export function AgentDashboard() {
             <div className="min-w-0 flex-1 space-y-3">
               <StackedBar
                 segments={[
-                  { label: "Completadas", value: done, color: "#303841" },
+                  { label: "Completadas", value: done, color: "rgb(var(--ink))" },
                   { label: "En progreso", value: inProgress, color: "#B9D2E5" },
                   { label: "Pendientes", value: pendingCount, color: "#FFF200" },
                 ]}
               />
-              <ul className="space-y-1 text-xs text-navy-200">
-                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-navy" />Completadas</span><b className="text-navy">{done}</b></li>
-                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-sky-300" />En progreso</span><b className="text-navy">{inProgress}</b></li>
-                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-accent ring-1 ring-navy/30" />Pendientes</span><b className="text-navy">{pendingCount}</b></li>
+              <ul className="space-y-1 text-xs text-ink-muted">
+                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-navy" />Completadas</span><b className="text-ink">{done}</b></li>
+                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-sky-300" />En progreso</span><b className="text-ink">{inProgress}</b></li>
+                <li className="flex justify-between"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-accent ring-1 ring-navy/30" />Pendientes</span><b className="text-on-accent">{pendingCount}</b></li>
               </ul>
             </div>
           </div>
@@ -242,50 +230,20 @@ export function AgentDashboard() {
             {closings.slice(0, 4).map((d) => {
               const n = daysFromToday(d.targetCloseDate);
               return (
-                <li key={d.id} className="flex items-center gap-3 rounded-xl bg-white/80 px-3 py-2 ring-1 ring-navy/5">
+                <li key={d.id} className="flex items-center gap-3 rounded-xl bg-surface/80 px-3 py-2 ring-1 ring-navy/5">
                   <span className="grid h-10 w-12 shrink-0 place-items-center rounded-lg bg-navy text-center leading-none text-white">
                     <span className="text-base font-semibold tabular-nums">{n}</span>
                     <span className="text-[9px] uppercase text-white/60">días</span>
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-navy">{shortAddress(d)}</p>
-                    <p className="truncate text-xs text-navy-200">{d.buyer.name} · {fmtShort(d.targetCloseDate)}</p>
+                    <p className="truncate text-sm font-medium text-ink">{shortAddress(d)}</p>
+                    <p className="truncate text-xs text-ink-muted">{d.buyer.name} · {fmtShort(d.targetCloseDate)}</p>
                   </div>
                 </li>
               );
             })}
           </ul>
         </Card>
-
-        {/* Pipeline */}
-        <Card tone="paper" className="lg:col-span-7">
-          <CardHeader tone="paper" title="Tu tubería de ventas" href="/deals" />
-          <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:p-6">
-            <div className="relative shrink-0">
-              <Donut segments={byStage.filter((s) => s.value).map((s) => ({ value: s.value, color: stageColor[s.key] }))} />
-              <div className="absolute inset-0 grid place-items-center text-center">
-                <div>
-                  <p className="text-xl font-semibold tabular-nums text-navy">{penShort(pipelineTotal)}</p>
-                  <p className="text-xs text-navy-200">valor total</p>
-                </div>
-              </div>
-            </div>
-            <ul className="w-full flex-1 space-y-2">
-              {byStage.map((s) => (
-                <li key={s.key} className="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 ring-1 ring-navy-100">
-                  <span className="h-3 w-3 rounded-full ring-1 ring-navy/20" style={{ background: stageColor[s.key] }} aria-hidden />
-                  <span className="flex-1 text-navy">{s.label}</span>
-                  <span className="text-sm tabular-nums text-navy-200">{s.value ? penShort(s.value) : "—"}</span>
-                  <span className="w-5 text-right text-sm font-semibold tabular-nums text-navy">{s.count}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Card>
-
-        <div className="lg:col-span-5">
-          <WhatsAppCard className="h-full" />
-        </div>
       </div>
     </div>
   );

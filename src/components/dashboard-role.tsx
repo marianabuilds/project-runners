@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { CalendarDays, ListChecks, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ActivityFeed } from "./activity-feed";
-import { TaskCtaButton } from "./task-cta";
-import { Badge, ownerBadge } from "./agenda";
+import { Checklist } from "./checklist";
 import { WeekStrip } from "./week-strip";
-import { WhatsAppCard } from "./whatsapp-card";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "./ui";
 import { agent, TODAY } from "@/lib/data";
-import { daysFromToday, fmtLong, pen, relativeDue, shortAddress } from "@/lib/format";
+import { fmtLong, pen, shortAddress } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { waLink } from "@/lib/whatsapp";
 
@@ -53,8 +51,8 @@ export function RoleDashboard() {
             </p>
             <dl className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {stats.map((s, i) => (
-                <div key={s.label} className={i === 0 ? "rounded-2xl bg-accent p-3 text-navy" : "rounded-2xl bg-white/10 p-3"}>
-                  <dt className={i === 0 ? "text-xs text-navy-600" : "text-xs text-white/60"}>{s.label}</dt>
+                <div key={s.label} className={i === 0 ? "rounded-2xl bg-accent p-3 text-on-accent" : "rounded-2xl bg-white/10 p-3"}>
+                  <dt className={i === 0 ? "text-xs text-ink-soft" : "text-xs text-white/60"}>{s.label}</dt>
                   <dd className="mt-1 text-lg font-semibold tabular-nums">{s.value}</dd>
                 </div>
               ))}
@@ -78,25 +76,9 @@ export function RoleDashboard() {
             href="/tasks"
             icon={<span className="grid h-10 w-10 place-items-center rounded-xl bg-navy text-white" aria-hidden><ListChecks className="h-5 w-5" /></span>}
           />
-          <ul className="space-y-2 p-3 sm:p-4">
-            {open.length === 0 && <li className="rounded-2xl bg-white/70 p-4 text-sm text-navy-600">Todo al día. 🎉</li>}
-            {open.slice(0, 6).map((t) => {
-              const late = daysFromToday(t.dueDate) < 0;
-              return (
-                <li key={t.id} className="flex items-center gap-3 rounded-2xl border-l-4 border-navy bg-white p-3 shadow-sm ring-1 ring-navy/5">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-navy">{t.title}</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                      {late && <Badge kind="atrasada" />}
-                      <Badge kind={ownerBadge(t.assignee, role)} />
-                      <span className="text-[11px] text-navy-200">{relativeDue(t.dueDate)}</span>
-                    </div>
-                  </div>
-                  <TaskCtaButton task={t} />
-                </li>
-              );
-            })}
-          </ul>
+          <div className="bg-surface">
+            <Checklist tasks={visibleTasks} />
+          </div>
         </Card>
 
         </div>
@@ -105,8 +87,8 @@ export function RoleDashboard() {
           <CardHeader
             title="Esta semana"
             subtitle="Toca un día para ver sus pendientes"
-            icon={<span className="grid h-10 w-10 place-items-center rounded-xl bg-sky text-navy" aria-hidden><CalendarDays className="h-5 w-5" /></span>}
-            action={<Link href="/calendar" className="text-sm font-medium text-navy hover:text-navy-200">Calendario</Link>}
+            icon={<span className="grid h-10 w-10 place-items-center rounded-xl bg-sky text-ink" aria-hidden><CalendarDays className="h-5 w-5" /></span>}
+            action={<Link href="/calendar" className="text-sm font-medium text-ink hover:text-ink-muted">Calendario</Link>}
           />
           <WeekStrip />
         </Card>
@@ -118,26 +100,25 @@ export function RoleDashboard() {
 
         </div>
 
-        <div className="grid grid-cols-1 gap-5 lg:col-span-12 lg:grid-cols-2">
-          <WhatsAppCard />
-          <Card tone="paper">
+        <div className="lg:col-span-12">
+                    <Card tone="paper">
             <CardHeader tone="paper" title="Tu agente" />
             <div className="p-4 sm:p-5">
-              <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-navy/5">
+              <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-navy/5">
                 <Avatar initials={agent.initials} size="lg" src={agent.photo} />
                 <div>
-                  <p className="font-semibold text-navy">{agent.name}</p>
-                  <p className="text-sm text-navy-200">{agent.agency}</p>
+                  <p className="font-semibold text-ink">{agent.name}</p>
+                  <p className="text-sm text-ink-muted">{agent.agency}</p>
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2">
                 <a href={`tel:${agent.phone.replace(/\s/g, "")}`} className={`${btn} bg-navy text-white hover:bg-navy-600`}>
                   <Phone className="h-4 w-4" aria-hidden /> Llamar
                 </a>
-                <a href={waLink(agent.phone, "Hola! Quisiera hablar sobre el negocio.")} target="_blank" rel="noopener noreferrer" className={`${btn} bg-accent text-navy hover:brightness-95`}>
+                <a href={waLink(agent.phone, "Hola! Quisiera hablar sobre el negocio.")} target="_blank" rel="noopener noreferrer" className={`${btn} bg-accent text-on-accent hover:brightness-95`}>
                   <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
                 </a>
-                <a href={`mailto:${agent.email}`} className={`${btn} bg-white text-navy ring-1 ring-navy/10 hover:bg-paper`}>
+                <a href={`mailto:${agent.email}`} className={`${btn} bg-surface text-ink ring-1 ring-navy/10 hover:bg-paper`}>
                   <Mail className="h-4 w-4" aria-hidden /> Correo
                 </a>
               </div>

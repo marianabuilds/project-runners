@@ -10,19 +10,19 @@ const eventIcon = { offer: FileText, inspection: Search, appraisal: Home, closin
 
 export function itemVisual(i: CalItem) {
   if (i.kind === "event") return { Icon: eventIcon[i.eventType ?? "custom"], box: "bg-navy text-white" };
-  if (i.done) return { Icon: CheckCircle2, box: "bg-emerald-50 text-emerald-600" };
-  if (i.overdue) return { Icon: AlertCircle, box: "bg-red-50 text-red-600" };
-  if (i.assignee === "buyer") return { Icon: UserRound, box: "bg-accent text-navy" };
-  return { Icon: ClipboardCheck, box: "bg-sky text-navy" };
+  if (i.done) return { Icon: CheckCircle2, box: "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" };
+  if (i.overdue) return { Icon: AlertCircle, box: "bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400" };
+  if (i.assignee === "buyer") return { Icon: UserRound, box: "bg-accent text-on-accent" };
+  return { Icon: ClipboardCheck, box: "bg-sky text-ink" };
 }
 
 const badgeStyle = {
   hito: "bg-navy text-white",
-  tarea: "bg-[#7FA8C9]/30 text-navy",
-  comprador: "bg-accent text-navy ring-1 ring-navy/20",
-  vendedor: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  agente: "bg-navy-50 text-navy ring-1 ring-navy-100",
-  atrasada: "bg-red-50 text-red-700 ring-1 ring-red-200",
+  tarea: "bg-[#7FA8C9]/30 text-ink",
+  comprador: "bg-accent text-on-accent ring-1 ring-navy/20",
+  vendedor: "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-500/30",
+  agente: "bg-navy-50 text-ink ring-1 ring-navy-100",
+  atrasada: "bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-500/30",
 } as const;
 const badgeLabel = { hito: "Hito", tarea: "Tu tarea", comprador: "Comprador", vendedor: "Vendedor", agente: "Agente", atrasada: "Atrasada" } as const;
 export type BadgeKind = keyof typeof badgeStyle;
@@ -54,14 +54,14 @@ export function AgendaRow({ item, right }: { item: CalItem; right?: React.ReactN
   return (
     <Link
       href={`/deals/${item.dealId}`}
-      className="flex items-center gap-3 rounded-2xl bg-white/80 p-3 ring-1 ring-navy/5 transition hover:bg-white hover:shadow-md"
+      className="flex items-center gap-3 rounded-2xl bg-surface/80 p-3 ring-1 ring-navy/5 transition hover:bg-surface hover:shadow-md"
     >
       <span className={clsx("grid h-10 w-10 shrink-0 place-items-center rounded-xl", box)} aria-hidden>
         <Icon className="h-5 w-5" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className={clsx("truncate font-medium text-navy", item.done && "text-navy-200 line-through")}>{item.title}</p>
-        <p className="truncate text-sm text-navy-200">{item.sub}</p>
+        <p className={clsx("truncate font-medium text-ink", item.done && "text-ink-muted line-through")}>{item.title}</p>
+        <p className="truncate text-sm text-ink-muted">{item.sub}</p>
       </div>
       {right ?? <ItemBadges item={item} />}
     </Link>
@@ -87,7 +87,7 @@ export function Legend() {
     ["bg-red-500", "Atrasada"],
   ];
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-navy-200">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
       {l.map(([c, t]) => (
         <li key={t} className="flex items-center gap-1.5">
           <span className={clsx("h-2 w-2 rounded-full", c)} /> {t}

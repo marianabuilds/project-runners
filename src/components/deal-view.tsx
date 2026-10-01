@@ -14,8 +14,8 @@ import { waLink } from "@/lib/whatsapp";
 function Row({ label, value, emphasis }: { label: string; value: React.ReactNode; emphasis?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5">
-      <dt className={emphasis ? "font-semibold text-navy" : "text-navy-200"}>{label}</dt>
-      <dd className={`text-right tabular-nums ${emphasis ? "font-semibold text-navy" : "text-navy"}`}>{value}</dd>
+      <dt className={emphasis ? "font-semibold text-ink" : "text-ink-muted"}>{label}</dt>
+      <dd className={`text-right tabular-nums ${emphasis ? "font-semibold text-ink" : "text-ink"}`}>{value}</dd>
     </div>
   );
 }
@@ -27,11 +27,11 @@ function ContactCard({ title, name, email, phone, initials, photo, subtitle }: {
     <Card tone="sky" className="h-full">
       <CardHeader tone="sky" title={title} subtitle={subtitle} />
       <div className="p-4 sm:p-5">
-        <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-navy/5">
+        <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-navy/5">
           <Avatar initials={initials} size="lg" src={photo} />
           <div className="min-w-0">
-            <p className="font-semibold text-navy">{name}</p>
-            {email && <p className="truncate text-sm text-navy-200">{email}</p>}
+            <p className="font-semibold text-ink">{name}</p>
+            {email && <p className="truncate text-sm text-ink-muted">{email}</p>}
           </div>
         </div>
         {phone && email && (
@@ -39,10 +39,10 @@ function ContactCard({ title, name, email, phone, initials, photo, subtitle }: {
             <a href={`tel:${phone.replace(/\s/g, "")}`} className={`${btn} bg-navy text-white hover:bg-navy-600`}>
               <Phone className="h-4 w-4" aria-hidden /> Llamar
             </a>
-            <a href={waLink(phone, "Hola! Quisiera hablar sobre el negocio inmobiliario.")} target="_blank" rel="noopener noreferrer" className={`${btn} bg-accent text-navy hover:brightness-95`}>
+            <a href={waLink(phone, "Hola! Quisiera hablar sobre el negocio inmobiliario.")} target="_blank" rel="noopener noreferrer" className={`${btn} bg-accent text-on-accent hover:brightness-95`}>
               <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
             </a>
-            <a href={`mailto:${email}`} className={`${btn} bg-white text-navy ring-1 ring-navy/10 hover:bg-paper`}>
+            <a href={`mailto:${email}`} className={`${btn} bg-surface text-ink ring-1 ring-navy/10 hover:bg-paper`}>
               <Mail className="h-4 w-4" aria-hidden /> Correo
             </a>
           </div>
@@ -57,9 +57,9 @@ export function DealView({ id }: { id: string }) {
   const base = dealById(id)!;
   if (!deals.some((d) => d.id === id)) {
     return (
-      <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 text-center ring-1 ring-navy-100">
-        <p className="font-semibold text-navy">No tienes acceso a este negocio.</p>
-        <Link href="/deals" className="mt-3 inline-block text-sm text-navy underline">Volver a mis negocios</Link>
+      <div className="mx-auto max-w-xl rounded-3xl bg-surface p-8 text-center ring-1 ring-navy-100">
+        <p className="font-semibold text-ink">No tienes acceso a este negocio.</p>
+        <Link href="/deals" className="mt-3 inline-block text-sm text-ink underline">Volver a mis negocios</Link>
       </div>
     );
   }
@@ -78,7 +78,7 @@ export function DealView({ id }: { id: string }) {
   return (
     <div className="mx-auto max-w-7xl pb-10">
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <Link href="/deals" className="inline-flex items-center gap-1.5 text-sm text-navy-200 hover:text-navy lg:col-span-12">
+        <Link href="/deals" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink lg:col-span-12">
           <ArrowLeft className="h-4 w-4" aria-hidden /> {isAgent ? "Todos los negocios" : "Volver"}
         </Link>
 
@@ -100,8 +100,8 @@ export function DealView({ id }: { id: string }) {
           </div>
           <dl className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((s, i) => (
-              <div key={s.label} className={i === 0 ? "rounded-2xl bg-accent p-3 text-navy" : "rounded-2xl bg-white/10 p-3"}>
-                <dt className={i === 0 ? "text-xs text-navy-600" : "text-xs text-white/60"}>{s.label}</dt>
+              <div key={s.label} className={i === 0 ? "rounded-2xl bg-accent p-3 text-on-accent" : "rounded-2xl bg-white/10 p-3"}>
+                <dt className={i === 0 ? "text-xs text-ink-soft" : "text-xs text-white/60"}>{s.label}</dt>
                 <dd className="mt-1 text-lg font-semibold tabular-nums">{s.value}</dd>
               </div>
             ))}
@@ -141,7 +141,7 @@ export function DealView({ id }: { id: string }) {
               <Row label={role === "seller" ? "Oferta recibida" : "Precio oferta"} value={pen(deal.pricePen)} emphasis />
               {deal.listingPricePen && <Row label="Precio de lista" value={pen(deal.listingPricePen)} />}
               {deal.listingPricePen && role !== "buyer" && (
-                <Row label="Por debajo de lista" value={<span className="text-emerald-700">−{pen(deal.listingPricePen - deal.pricePen)}</span>} />
+                <Row label="Por debajo de lista" value={<span className="text-emerald-700 dark:text-emerald-300">−{pen(deal.listingPricePen - deal.pricePen)}</span>} />
               )}
               <Row label="Vendedor" value={deal.sellerName} />
               <Row label="Dirección" value={fullAddress(deal)} />
@@ -150,7 +150,7 @@ export function DealView({ id }: { id: string }) {
           {isAgent && (
             <Card tone="sky">
               <CardHeader tone="sky" title="Notas privadas" subtitle="Comprador y vendedor no pueden ver esto" />
-              <p className="px-5 py-4 text-sm leading-relaxed text-navy sm:px-6">{deal.notes}</p>
+              <p className="px-5 py-4 text-sm leading-relaxed text-ink sm:px-6">{deal.notes}</p>
             </Card>
           )}
         </div>

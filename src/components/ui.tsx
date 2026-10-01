@@ -8,18 +8,18 @@ export type CardTone = "white" | "sky" | "navy" | "sun" | "paper";
 
 const cardTones: Record<CardTone, { card: string; head: string; title: string; muted: string; link: string }> = {
   white: {
-    card: "bg-white ring-navy-100/70 shadow-[0_2px_12px_-4px_rgba(48,56,65,0.10)]",
+    card: "bg-surface ring-navy-100/70 shadow-[0_2px_12px_-4px_rgba(48,56,65,0.10)]",
     head: "border-navy-100",
-    title: "text-navy",
-    muted: "text-navy-200",
-    link: "text-navy hover:text-navy-200",
+    title: "text-ink",
+    muted: "text-ink-muted",
+    link: "text-ink hover:text-ink-muted",
   },
   sky: {
     card: "bg-gradient-to-br from-sky via-sky to-sky-100 ring-sky shadow-[0_8px_24px_-12px_rgba(48,56,65,0.25)]",
     head: "border-navy/10",
-    title: "text-navy",
-    muted: "text-navy-600",
-    link: "text-navy hover:text-navy-600",
+    title: "text-ink",
+    muted: "text-ink-soft",
+    link: "text-ink hover:text-ink-soft",
   },
   navy: {
     card: "bg-gradient-to-br from-navy via-navy to-[#1f252c] text-white ring-navy shadow-[0_12px_32px_-12px_rgba(48,56,65,0.6)]",
@@ -29,18 +29,18 @@ const cardTones: Record<CardTone, { card: string; head: string; title: string; m
     link: "text-accent hover:text-white",
   },
   sun: {
-    card: "bg-gradient-to-br from-accent/30 via-accent/10 to-white ring-accent/60 shadow-[0_8px_24px_-12px_rgba(180,160,0,0.35)]",
+    card: "bg-gradient-to-br from-accent/30 via-accent/10 to-surface ring-accent/60 shadow-[0_8px_24px_-12px_rgba(180,160,0,0.35)]",
     head: "border-navy/10",
-    title: "text-navy",
-    muted: "text-navy-600",
-    link: "text-navy hover:text-navy-600",
+    title: "text-ink",
+    muted: "text-ink-soft",
+    link: "text-ink hover:text-ink-soft",
   },
   paper: {
     card: "bg-paper ring-navy-100",
     head: "border-navy-100",
-    title: "text-navy",
-    muted: "text-navy-200",
-    link: "text-navy hover:text-navy-200",
+    title: "text-ink",
+    muted: "text-ink-muted",
+    link: "text-ink hover:text-ink-muted",
   },
 };
 
@@ -89,12 +89,12 @@ export function CardHeader({
 }
 
 const tileTones = {
-  orange: "bg-accent text-navy ring-accent/20",
-  violet: "bg-sky-100 text-navy ring-sky-100",
-  blue: "bg-sky text-navy ring-sky-100",
-  green: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  slate: "bg-paper text-navy-200 ring-navy-100",
-  red: "bg-red-50 text-red-600 ring-red-100",
+  orange: "bg-accent text-on-accent ring-accent/20",
+  violet: "bg-sky-100 text-ink ring-sky-100",
+  blue: "bg-sky text-ink ring-sky-100",
+  green: "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-500/30",
+  slate: "bg-paper text-ink-muted ring-navy-100",
+  red: "bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 ring-red-100 dark:ring-red-500/30",
 } as const;
 export type Tone = keyof typeof tileTones;
 
@@ -107,11 +107,11 @@ export function IconTile({ tone, children, className }: { tone: Tone; children: 
 }
 
 export const stageTone: Record<Stage, string> = {
-  prospect: "bg-sky-100 text-navy",
-  offer: "bg-sky text-navy",
-  under_contract: "bg-sky-100 text-navy",
-  due_diligence: "bg-accent text-navy",
-  closing: "bg-sky-100 text-navy",
+  prospect: "bg-sky-100 text-ink",
+  offer: "bg-sky text-ink",
+  under_contract: "bg-sky-100 text-ink",
+  due_diligence: "bg-accent text-on-accent",
+  closing: "bg-sky-100 text-ink",
 };
 export const stageColor: Record<Stage, string> = {
   prospect: "#303841",
@@ -130,9 +130,9 @@ export function StageBadge({ stage }: { stage: Stage }) {
 }
 
 const statusStyles: Record<TaskStatus, { label: string; cls: string }> = {
-  pending: { label: "Pendiente", cls: "bg-sky-100 text-navy" },
-  in_progress: { label: "En progreso", cls: "bg-sky text-navy" },
-  completed: { label: "Completada", cls: "bg-emerald-50 text-emerald-700" },
+  pending: { label: "Pendiente", cls: "bg-sky-100 text-ink" },
+  in_progress: { label: "En progreso", cls: "bg-sky text-ink" },
+  completed: { label: "Completada", cls: "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
 };
 
 export function StatusPill({ status }: { status: TaskStatus }) {
@@ -158,7 +158,7 @@ export function Avatar({ initials, size = "md", src }: { initials: string; size?
   return (
     <div
       className={clsx(
-        "grid shrink-0 place-items-center rounded-full bg-navy-100 font-medium text-navy",
+        "grid shrink-0 place-items-center rounded-full bg-navy-100 font-medium text-ink",
         size === "sm" && "h-8 w-8 text-xs",
         size === "md" && "h-10 w-10 text-sm",
         size === "lg" && "h-12 w-12 text-base",
@@ -189,13 +189,13 @@ export function StageTracker({ stage }: { stage: Stage }) {
               className={clsx(
                 "relative z-10 grid h-8 w-8 place-items-center rounded-full text-sm font-semibold",
                 done && "bg-navy text-white",
-                active && "bg-white text-navy ring-2 ring-navy",
-                !done && !active && "bg-white text-navy-200 ring-2 ring-navy-100",
+                active && "bg-surface text-ink ring-2 ring-navy",
+                !done && !active && "bg-surface text-ink-muted ring-2 ring-navy-100",
               )}
             >
               {done ? <Check className="h-4 w-4" aria-hidden /> : i + 1}
             </span>
-            <span className={clsx("mt-2 px-1 text-[11px] leading-tight sm:text-xs", active ? "font-semibold text-navy" : "text-navy-200")}>
+            <span className={clsx("mt-2 px-1 text-[11px] leading-tight sm:text-xs", active ? "font-semibold text-ink" : "text-ink-muted")}>
               {s.label}
             </span>
           </li>
@@ -240,8 +240,8 @@ export function DateTile({ day, month }: { day: number; month: string }) {
       <span className="absolute -top-1 left-3 h-2 w-0.5 rounded bg-navy-100" />
       <span className="absolute -top-1 right-3 h-2 w-0.5 rounded bg-navy-100" />
       <div className="text-center leading-none">
-        <div className="text-base font-semibold text-navy">{day}</div>
-        <div className="mt-0.5 text-[10px] uppercase text-navy-200">{month}</div>
+        <div className="text-base font-semibold text-ink">{day}</div>
+        <div className="mt-0.5 text-[10px] uppercase text-ink-muted">{month}</div>
       </div>
     </div>
   );

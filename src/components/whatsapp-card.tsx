@@ -22,11 +22,11 @@ export function WhatsAppCard({ className }: { className?: string }) {
       <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-full bg-sky-100">
-            <MessageCircle className="h-5 w-5 text-navy" aria-hidden />
+            <MessageCircle className="h-5 w-5 text-ink" aria-hidden />
           </div>
           <div>
-            <p className="text-sm font-medium text-navy">Última actualización: {fmtDateTime(lastSync)}</p>
-            <p className="text-xs text-navy-200">Fechas y tareas se leen de los chats y se comparten con todos</p>
+            <p className="text-sm font-medium text-ink">Última actualización: {fmtDateTime(lastSync)}</p>
+            <p className="text-xs text-ink-muted">Fechas y tareas se leen de los chats y se comparten con todos</p>
           </div>
         </div>
         {role === "agent" && (

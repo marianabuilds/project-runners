@@ -3,22 +3,50 @@
 @tailwind utilities;
 
 :root {
-  --color-dark: #303841;
-  --color-light-blue: #D6E6F2;
-  --color-off-white: #F5F5F5;
-  --color-yellow: #FFF200;
+  --ink: 48 56 65;
+  --ink-muted: 138 146 156;
+  --ink-soft: 77 88 102;
+  --navy: 48 56 65;
+  --navy-50: 240 241 242;
+  --navy-100: 212 216 221;
+  --navy-200: 138 146 156;
+  --navy-600: 77 88 102;
+  --paper: 245 245 245;
+  --surface: 255 255 255;
+  --sky: 214 230 242;
+  --sky-100: 232 242 249;
+  --sky-300: 185 210 229;
+}
+
+.dark {
+  --ink: 232 236 240;
+  --ink-muted: 152 162 174;
+  --ink-soft: 190 198 208;
+  --navy: 74 86 102;
+  --navy-50: 33 40 48;
+  --navy-100: 56 66 78;
+  --navy-200: 112 124 138;
+  --navy-600: 92 105 122;
+  --paper: 15 19 24;
+  --surface: 27 33 40;
+  --sky: 36 48 62;
+  --sky-100: 30 40 52;
+  --sky-300: 70 96 122;
 }
 
 html {
   color-scheme: light;
 }
+html.dark {
+  color-scheme: dark;
+}
 
 body {
-  color: var(--color-dark);
-  background-color: var(--color-off-white);
+  color: rgb(var(--ink));
+  background-color: rgb(var(--paper));
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-dark);
+  outline: 2px solid rgb(var(--ink));
   outline-offset: 2px;
 }

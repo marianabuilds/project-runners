@@ -5,6 +5,7 @@ import { CalendarDays, ListChecks, Mail, MapPin, MessageCircle, Phone } from "lu
 import { ActivityFeed } from "./activity-feed";
 import { AddTask } from "./add-task";
 import { Checklist } from "./checklist";
+import { DailyDigest } from "./daily-digest";
 import { WeekStrip } from "./week-strip";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "./ui";
 import { agent, TODAY } from "@/lib/data";
@@ -14,11 +15,12 @@ import { waLink } from "@/lib/whatsapp";
 
 /** Buyer / seller panel: same shared data as the agent, scoped to their own deal. */
 export function RoleDashboard() {
-  const { role, me, deals, visibleTasks } = useStore();
+  const { role, me, deals, visibleTasks, visibleActivity } = useStore();
   const deal = deals[0];
   if (!deal) return null;
   const open = visibleTasks.filter((t) => t.status !== "completed").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   const mine = open.filter((t) => t.assignee === role).length;
+  const dealActivity = visibleActivity.filter((a) => a.dealId === deal.id);
   const isBuyer = role === "buyer";
   const btn = "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition";
 
@@ -60,6 +62,9 @@ export function RoleDashboard() {
             </dl>
           </div>
         </Card>
+
+        {/* Daily digest */}
+        <DailyDigest tasks={visibleTasks} activities={dealActivity} today={TODAY} />
 
         <Card className="lg:col-span-12">
           <CardHeader title={isBuyer ? "Progreso de tu compra" : "Progreso de la venta"} />

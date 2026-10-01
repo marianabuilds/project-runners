@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { Building2, Check, ChevronDown, LayoutGrid, Moon, Sun } from "lucide-react";
+import { Bell, Building2, Check, ChevronDown, LayoutGrid, Moon, Sun } from "lucide-react";
+import { NotificationsDrawer, useUnread } from "./notifications-drawer";
 import { StageBadge } from "./ui";
 import { shortAddress } from "@/lib/format";
 import { useStore } from "@/lib/store";
@@ -34,6 +35,8 @@ function ThemeToggle() {
 export function Topbar() {
   const { role, deals, visibleTasks, activeDealId, setActiveDeal } = useStore();
   const [open, setOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const unread = useUnread();
   const canAll = deals.length > 1;
   const current = deals.find((d) => d.id === activeDealId);
   const openCount = (id: string) => visibleTasks.filter((t) => t.dealId === id && t.status !== "completed").length;
@@ -89,7 +92,18 @@ export function Topbar() {
           </>
         )}
       </div>
-      <ThemeToggle />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setBellOpen(true)}
+          aria-label={unread ? `Notificaciones, ${unread} sin leer` : "Notificaciones"}
+          className="relative grid h-10 w-10 place-items-center rounded-xl bg-surface text-navy ring-1 ring-navy-100 hover:bg-sky"
+        >
+          <Bell className="h-5 w-5" aria-hidden />
+          {unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white ring-2 ring-paper">{unread}</span>}
+        </button>
+        <ThemeToggle />
+      </div>
+      <NotificationsDrawer open={bellOpen} onClose={() => setBellOpen(false)} />
     </div>
   );
 }

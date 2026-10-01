@@ -67,3 +67,16 @@ export function StackedBar({ segments }: { segments: { label: string; value: num
     </div>
   );
 }
+
+/** Calendar-page icon with the days left until a date. */
+export function CierreCountdown({ days, month, size = "lg" }: { days: number; month: string; size?: "sm" | "lg" }) {
+  return (
+    <div className={clsx("shrink-0 overflow-hidden rounded-2xl bg-surface text-center shadow-sm ring-1 ring-navy-100", size === "lg" ? "w-28" : "w-14 rounded-xl")} role="img" aria-label={`${days} días para el cierre`}>
+      <div className={clsx("bg-navy font-bold uppercase tracking-wider text-white", size === "lg" ? "py-1.5 text-xs" : "py-0.5 text-[9px]")}>{month}</div>
+      <div className={size === "lg" ? "py-3" : "py-1.5"}>
+        <p className={clsx("font-bold tabular-nums leading-none text-ink", size === "lg" ? "text-5xl" : "text-xl")}>{days}</p>
+        <p className={clsx("font-semibold uppercase text-ink-muted", size === "lg" ? "mt-1 text-[11px]" : "text-[8px]")}>días</p>
+      </div>
+    </div>
+  );
+}

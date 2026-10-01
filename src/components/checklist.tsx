@@ -29,6 +29,7 @@ function Row({ t, showDeal, detail }: { t: Task; showDeal: boolean; detail?: boo
         <p className={clsx("truncate font-medium", done ? "text-ink-muted line-through" : "text-ink")}>{t.title}</p>
         <p className="truncate text-xs text-ink-muted">
           {showDeal && deal && <>{shortAddress(deal)} · </>}
+          {t.manual && <span className="mr-1 rounded bg-navy-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-ink-soft">Manual</span>}
           <span className={clsx(late && "font-medium text-red-600 dark:text-red-400")}>{done ? "Hecho" : relativeDue(t.dueDate)}</span>
         </p>
         {detail && t.description && <p className="mt-0.5 text-sm text-ink-muted">{t.description}</p>}

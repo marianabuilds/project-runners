@@ -59,7 +59,7 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
     <nav aria-label="Main" className="flex-1 overflow-y-auto px-3">
       {sections.map((sec, i) => (
         <div key={i} className={clsx(i > 0 && "mt-6")}>
-          {sec.heading && <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">{sec.heading}</p>}
+          {sec.heading && <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{sec.heading}</p>}
           <ul className="space-y-0.5">
             {sec.items.map(({ href, label, icon: Icon }) => {
               const active = isActive(href);
@@ -70,8 +70,8 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
                     className={clsx(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] transition-colors",
-                      active ? "bg-sky font-medium text-ink" : "text-ink hover:bg-paper",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                      active ? "bg-sky font-bold text-ink" : "text-ink hover:bg-paper",
                     )}
                   >
                     <Icon className={clsx("h-5 w-5", active ? "text-ink" : "text-ink-muted")} aria-hidden />
@@ -122,7 +122,7 @@ function UserCard() {
       <div className="flex items-center gap-3">
         <Avatar initials={me.initials} src={me.photo} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-ink">{me.name}</p>
+          <p className="truncate text-sm font-semibold text-ink">{me.name}</p>
           <p className="truncate text-xs text-ink-muted">{me.label}</p>
         </div>
         <button

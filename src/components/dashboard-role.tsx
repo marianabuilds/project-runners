@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CalendarDays, ListChecks, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ActivityFeed } from "./activity-feed";
+import { AddTask } from "./add-task";
 import { Checklist } from "./checklist";
 import { WeekStrip } from "./week-strip";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "./ui";
@@ -78,6 +79,7 @@ export function RoleDashboard() {
           />
           <div className="bg-surface">
             <Checklist tasks={visibleTasks} />
+            <AddTask />
           </div>
         </Card>
 

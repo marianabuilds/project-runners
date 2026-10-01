@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { accounts, audit, STAGES, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
+import { accounts, audit, STAGES, type TaskAction, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
 
 // Demo-only shared store: one source of truth for every role, persisted in localStorage
 // (synced across tabs via the `storage` event). The role itself is per-tab (sessionStorage).
@@ -10,6 +10,7 @@ type Shared = { tasks: Task[]; stages: Record<string, Stage>; activity: AuditEnt
 const KEY = "trato-demo-v1";
 const ROLE_KEY = "trato-demo-role";
 const DEAL_KEY = "trato-demo-deal";
+const SEEN_KEY = "trato-demo-seen-";
 export type Scope = string | "all";
 
 const seed = (): Shared => ({
@@ -33,6 +34,9 @@ type Ctx = Shared & {
   setTaskDone: (id: string, done: boolean) => void;
   completeMany: (ids: string[]) => void;
   setStage: (dealId: string, stage: Stage) => void;
+  addTask: (t: { dealId: string; title: string; dueDate: string; action: TaskAction }) => void;
+  lastSeen: string;
+  markSeen: () => void;
   syncWhatsApp: () => void;
 };
 
@@ -57,6 +61,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<Shared>(seed);
   const [role, setRoleState] = useState<Role>("agent");
   const [activeDeal, setActiveDealState] = useState<Scope | null>(null);
+  const [lastSeen, setLastSeen] = useState("2000-01-01T00:00:00");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -68,6 +73,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
     const r = safe.get(typeof window === "undefined" ? undefined : sessionStorage, ROLE_KEY) as Role | null;
     if (r && r in accounts) setRoleState(r);
+    const seen = safe.get(typeof window === "undefined" ? undefined : localStorage, SEEN_KEY + (r ?? "agent"));
+    if (seen) setLastSeen(seen);
     const d = safe.get(typeof window === "undefined" ? undefined : sessionStorage, DEAL_KEY);
     if (d) setActiveDealState(d);
     setReady(true);
@@ -91,6 +98,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setActiveDealState(null);
     safe.set(sessionStorage, ROLE_KEY, r);
     safe.set(sessionStorage, DEAL_KEY, "");
+    setLastSeen(safe.get(localStorage, SEEN_KEY + r) ?? "2000-01-01T00:00:00");
   }, []);
 
   const setActiveDeal = useCallback((id: Scope) => {
@@ -137,6 +145,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [log],
   );
 
+  const addTask = useCallback(
+    (t: { dealId: string; title: string; dueDate: string; action: TaskAction }) =>
+      setState((s) => {
+        const task: Task = { id: `t${Date.now()}`, dealId: t.dealId, title: t.title, assignee: role, status: "pending", dueDate: t.dueDate, action: t.action, manual: true };
+        return { ...s, tasks: [...s.tasks, task], activity: [log(t.dealId, `Creó la tarea "${t.title}"`), ...s.activity] };
+      }),
+    [log, role],
+  );
+
+  const markSeen = useCallback(() => {
+    const now = new Date().toISOString();
+    setLastSeen(now);
+    safe.set(localStorage, SEEN_KEY + role, now);
+  }, [role]);
+
   const syncWhatsApp = useCallback(
     () => setState((s) => ({ ...s, lastSync: new Date().toISOString(), activity: [log(allDeals[0].id, "Sincronizó las conversaciones de WhatsApp"), ...s.activity] })),
     [log],
@@ -173,9 +196,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTaskDone,
       completeMany,
       setStage,
+      addTask,
+      lastSeen,
+      markSeen,
       syncWhatsApp,
     };
-  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, syncWhatsApp]);
+  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, addTask, lastSeen, markSeen, syncWhatsApp]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

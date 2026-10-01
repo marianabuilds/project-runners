@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, Search } from "lucide-react";
+import { HelpCircle, Search } from "lucide-react";
 
 export function PageHeader({ title, subtitle, children }: { title: React.ReactNode; subtitle?: React.ReactNode; children?: React.ReactNode }) {
   return (
@@ -14,10 +14,6 @@ export function PageHeader({ title, subtitle, children }: { title: React.ReactNo
         </button>
         <button className="hidden rounded-full p-2 text-ink-muted hover:bg-surface sm:block" aria-label="Ayuda">
           <HelpCircle className="h-5 w-5" />
-        </button>
-        <button className="relative rounded-full p-2 text-ink-muted hover:bg-surface" aria-label="Notificaciones, 3 sin leer">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-paper" />
         </button>
       </div>
     </header>

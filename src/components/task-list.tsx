@@ -3,6 +3,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import type { Task } from "@/lib/data";
+import { AddTask } from "./add-task";
 import { Checklist } from "./checklist";
 
 type Filter = "open" | "all";
@@ -30,6 +31,7 @@ export function TaskList({ tasks, grouped = false }: { tasks: Task[]; grouped?: 
       <div className="border-t border-navy-100">
         <Checklist tasks={visible} grouped={grouped} limit={999} closedLimit={999} detail />
       </div>
+      <AddTask />
     </div>
   );
 }

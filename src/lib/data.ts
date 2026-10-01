@@ -25,6 +25,7 @@ export type Task = {
   status: TaskStatus;
   dueDate: string;
   action: TaskAction;
+  manual?: boolean;
 };
 
 export type TimelineEvent = {
@@ -59,8 +60,8 @@ export const agent = {
   name: "Maricarmen Fransi",
   initials: "MF",
   agency: "Quispe Inmobiliaria",
-  email: "rosa@quispeinmobiliaria.pe",
-  phone: "+51 987 654 321",
+  email: "maricarmen@example.com",
+  phone: "+51 900 000 000",
   photo: "/avatars/rosa.webp",
 };
 

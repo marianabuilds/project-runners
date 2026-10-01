@@ -2,7 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-dark: #303841;
+  --color-light-blue: #D6E6F2;
+  --color-off-white: #F5F5F5;
+  --color-yellow: #FFF200;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  color: var(--color-dark);
+  background-color: var(--color-off-white);
+}
+
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-dark);
   outline-offset: 2px;
 }

@@ -54,20 +54,20 @@ export function TaskList({
   const filters: { key: Filter; label: string }[] =
     mode === "buyer"
       ? [
-          { key: "open", label: "To do" },
-          { key: "all", label: "All" },
+          { key: "open", label: "Por hacer" },
+          { key: "all", label: "Todos" },
         ]
       : [
-          { key: "all", label: "All" },
-          { key: "open", label: "Open" },
-          { key: "buyer", label: "Buyer" },
-          { key: "agent", label: "Agent" },
+          { key: "all", label: "Todos" },
+          { key: "open", label: "Abiertos" },
+          { key: "buyer", label: "Comprador" },
+          { key: "agent", label: "Agente" },
         ];
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6">
-        <div className="flex gap-1 rounded-xl bg-slate-100 p-1" role="group" aria-label="Filter tasks">
+        <div className="flex gap-1 rounded-xl bg-navy-100 p-1" role="group" aria-label="Filter tasks">
           {filters.map((f) => (
             <button
               key={f.key}
@@ -75,7 +75,7 @@ export function TaskList({
               aria-pressed={filter === f.key}
               className={clsx(
                 "rounded-lg px-3 py-1.5 text-sm",
-                filter === f.key ? "bg-white font-medium text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
+                filter === f.key ? "bg-white font-medium text-navy shadow-sm" : "text-navy-200 hover:text-navy",
               )}
             >
               {f.label}
@@ -85,24 +85,24 @@ export function TaskList({
         <div className="flex items-center gap-2">
           {mode === "agent" && selected.size > 0 && (
             <button onClick={bulkComplete} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">
-              Mark {selected.size} complete
+              Marcar {selected.size} completadas
             </button>
           )}
-          <label className="flex items-center gap-2 text-sm text-slate-600">
-            <span className="sr-only sm:not-sr-only">Sort</span>
+          <label className="flex items-center gap-2 text-sm text-navy-200">
+            <span className="sr-only sm:not-sr-only">Ordenar</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
-              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+              className="rounded-lg border border-navy-100 bg-white px-2 py-1.5 text-sm text-navy"
             >
-              <option value="due">Due date</option>
-              <option value="status">Status</option>
+              <option value="due">Fecha de vencimiento</option>
+              <option value="status">Estado</option>
             </select>
           </label>
         </div>
       </div>
 
-      <ul className="divide-y divide-slate-100 border-t border-slate-100">
+      <ul className="divide-y divide-navy-100 border-t border-navy-100">
         {visible.map((t) => {
           const done = t.status === "completed";
           const overdue = !done && daysFromToday(t.dueDate) < 0;
@@ -116,7 +116,7 @@ export function TaskList({
                   onChange={() => toggleSelect(t.id)}
                   disabled={done}
                   aria-label={`Select “${t.title}”`}
-                  className="mt-2.5 h-4 w-4 rounded border-slate-300 text-blue-600 disabled:opacity-30"
+                  className="mt-2.5 h-4 w-4 rounded border-navy-100 text-navy disabled:opacity-30"
                 />
               )}
               <button
@@ -125,35 +125,35 @@ export function TaskList({
                 aria-label={done ? `Mark “${t.title}” as not done` : `Mark “${t.title}” complete`}
                 className={clsx(
                   "mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors",
-                  done ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 hover:border-emerald-500",
+                  done ? "border-emerald-500 bg-emerald-500 text-white" : "border-navy-100 hover:border-emerald-500",
                   !canComplete && "cursor-not-allowed opacity-40",
                 )}
               >
                 {done && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
               </button>
               <div className="min-w-0 flex-1">
-                <p className={clsx("font-medium", done ? "text-slate-400 line-through" : "text-slate-900")}>{t.title}</p>
-                {t.description && <p className="mt-0.5 text-sm text-slate-500">{t.description}</p>}
+                <p className={clsx("font-medium", done ? "text-navy-200 line-through" : "text-navy")}>{t.title}</p>
+                {t.description && <p className="mt-0.5 text-sm text-navy-200">{t.description}</p>}
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                   <StatusPill status={t.status} />
-                  <span className="text-slate-500">
-                    {t.assignee === "buyer" ? (mode === "buyer" ? "You" : buyerName) : mode === "buyer" ? "Your agent" : "You"}
+                  <span className="text-navy-200">
+                    {t.assignee === "buyer" ? (mode === "buyer" ? "Tú" : buyerName) : mode === "buyer" ? "Tu agente" : "Tú"}
                   </span>
                 </div>
               </div>
-              <span className={clsx("shrink-0 pt-0.5 text-sm", overdue ? "font-medium text-red-600" : "text-slate-500")}>
-                {done ? "Done" : relativeDue(t.dueDate)}
+              <span className={clsx("shrink-0 pt-0.5 text-sm", overdue ? "font-medium text-red-600" : "text-navy-200")}>
+                {done ? "Hecho" : relativeDue(t.dueDate)}
               </span>
             </li>
           );
         })}
-        {visible.length === 0 && <li className="px-6 py-10 text-center text-sm text-slate-500">Nothing here. 🎉</li>}
+        {visible.length === 0 && <li className="px-6 py-10 text-center text-sm text-navy-200">Nada aquí. 🎉</li>}
       </ul>
 
       {mode === "agent" && (
-        <div className="border-t border-slate-100 px-5 py-3 sm:px-6">
-          <button className="flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800">
-            <Plus className="h-4 w-4" aria-hidden /> Add task
+        <div className="border-t border-navy-100 px-5 py-3 sm:px-6">
+          <button className="flex items-center gap-1.5 text-sm font-medium text-navy hover:text-navy">
+            <Plus className="h-4 w-4" aria-hidden /> Agregar tarea
           </button>
         </div>
       )}

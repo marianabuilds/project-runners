@@ -10,23 +10,28 @@ export const penShort = (n: number) =>
 const parse = (iso: string) => new Date(iso.length === 10 ? iso + "T12:00:00" : iso);
 
 export const fmtDate = (iso: string) =>
-  parse(iso).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  parse(iso).toLocaleDateString("es-PE", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
-export const fmtShort = (iso: string) => parse(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+export const fmtLong = (iso: string) => {
+  const s = parse(iso).toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+export const fmtShort =(iso: string) => parse(iso).toLocaleDateString("es-PE", { day: "numeric", month: "short" });
 
 export const dayNum = (iso: string) => parse(iso).getDate();
-export const monthAbbr = (iso: string) => parse(iso).toLocaleDateString("en-GB", { month: "short" });
+export const monthAbbr = (iso: string) => parse(iso).toLocaleDateString("es-PE", { month: "short" });
 
 export const daysFromToday = (iso: string) =>
   Math.round((parse(iso).getTime() - parse(TODAY).getTime()) / 86_400_000);
 
 export const relativeDue = (iso: string) => {
   const d = daysFromToday(iso);
-  if (d === 0) return "Today";
-  if (d === 1) return "Tomorrow";
-  if (d === -1) return "Yesterday";
-  if (d < 0) return `${-d} days overdue`;
-  if (d <= 7) return `In ${d} days`;
+  if (d === 0) return "Hoy";
+  if (d === 1) return "Mañana";
+  if (d === -1) return "Ayer";
+  if (d < 0) return `${-d} ${-d === 1 ? "día" : "días"} atrasada`;
+  if (d <= 7) return `En ${d} ${d === 1 ? "día" : "días"}`;
   return fmtShort(iso);
 };
 

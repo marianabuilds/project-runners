@@ -4,14 +4,14 @@ import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui";
 
 const input =
-  "mt-1.5 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100";
+  "mt-1.5 block w-full rounded-xl border border-navy-100 bg-white px-3 py-2.5 text-sm text-navy placeholder:text-navy-200 focus:border-navy focus:outline-none focus:ring-2 focus:ring-sky";
 
 function Field({ label, id, hint, className, ...props }: { label: string; id: string; hint?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium text-navy">{label}</label>
       <input id={id} name={id} className={input} {...props} />
-      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-navy-200">{hint}</p>}
     </div>
   );
 }
@@ -19,7 +19,7 @@ function Field({ label, id, hint, className, ...props }: { label: string; id: st
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card className="p-5 sm:p-6">
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">{title}</h2>
+      <h2 className="mb-4 text-lg font-semibold text-navy">{title}</h2>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </Card>
   );
@@ -28,32 +28,32 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function NewDealPage() {
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/deals" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900">
-        <ArrowLeft className="h-4 w-4" aria-hidden /> All deals
+      <Link href="/deals" className="mb-4 inline-flex items-center gap-1.5 text-sm text-navy-200 hover:text-navy">
+        <ArrowLeft className="h-4 w-4" aria-hidden /> Todos los negocios
       </Link>
-      <PageHeader title="New deal" subtitle="It starts in the Prospect stage. You can invite the buyer now or later." />
+      <PageHeader title="Nuevo negocio" subtitle="Comienza en la etapa Prospecto. Puedes invitar al comprador ahora o después." />
       <form className="space-y-6">
-        <Section title="Property">
-          <Field label="Street" id="street" placeholder="Av. José Larco" className="sm:col-span-2" />
-          <Field label="Number" id="number" placeholder="1150" />
-          <Field label="District" id="district" placeholder="Miraflores" />
-          <Field label="Province" id="province" placeholder="Lima" />
-          <Field label="Department" id="department" placeholder="Lima" />
+        <Section title="Propiedad">
+          <Field label="Calle" id="street" placeholder="Av. José Larco" className="sm:col-span-2" />
+          <Field label="Número" id="number" placeholder="1150" />
+          <Field label="Distrito" id="district" placeholder="Miraflores" />
+          <Field label="Provincia" id="province" placeholder="Lima" />
+          <Field label="Departamento" id="department" placeholder="Lima" />
         </Section>
-        <Section title="Price & dates">
-          <Field label="Offer price (S/)" id="price" inputMode="decimal" placeholder="685,000.00" />
-          <Field label="Listing price (S/)" id="listing" inputMode="decimal" placeholder="720,000.00" hint="Optional" />
-          <Field label="Target close date" id="close" type="date" hint="Typical: 45–60 days after the offer" />
-          <Field label="Seller name" id="seller" placeholder="Jorge Salazar" />
+        <Section title="Precio y fechas">
+          <Field label="Precio oferta (S/)" id="price" inputMode="decimal" placeholder="685,000.00" />
+          <Field label="Precio de lista (S/)" id="listing" inputMode="decimal" placeholder="720,000.00" hint="Opcional" />
+          <Field label="Fecha de cierre objetivo" id="close" type="date" hint="Típico: 45–60 días después de la oferta" />
+          <Field label="Nombre del vendedor" id="seller" placeholder="Jorge Salazar" />
         </Section>
-        <Section title="Buyer">
-          <Field label="Buyer name" id="buyer" placeholder="Lucía Fernández" />
-          <Field label="Buyer email" id="buyerEmail" type="email" placeholder="lucia@example.com" hint="We'll email them an invite link" />
+        <Section title="Comprador">
+          <Field label="Nombre del comprador" id="buyer" placeholder="Lucía Fernández" />
+          <Field label="Correo del comprador" id="buyerEmail" type="email" placeholder="lucia@example.com" hint="Le enviaremos un enlace de invitación" />
         </Section>
         <div className="flex justify-end gap-3">
-          <Link href="/deals" className="rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-white">Cancel</Link>
-          <button type="button" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">
-            Create deal
+          <Link href="/deals" className="rounded-xl px-4 py-2.5 text-sm font-medium text-navy hover:bg-white">Cancelar</Link>
+          <button type="button" className="rounded-xl bg-navy px-5 py-2.5 text-sm font-medium text-white hover:bg-navy-200">
+            Crear negocio
           </button>
         </div>
       </form>

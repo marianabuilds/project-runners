@@ -4,8 +4,48 @@ import { Check, ChevronRight } from "lucide-react";
 import { STAGES, type Stage, type TaskStatus } from "@/lib/data";
 import { stageIndex, stageLabel } from "@/lib/format";
 
-export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={clsx("rounded-2xl bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-slate-200/70", className)}>{children}</section>;
+export type CardTone = "white" | "sky" | "navy" | "sun" | "paper";
+
+const cardTones: Record<CardTone, { card: string; head: string; title: string; muted: string; link: string }> = {
+  white: {
+    card: "bg-white ring-navy-100/70 shadow-[0_2px_12px_-4px_rgba(48,56,65,0.10)]",
+    head: "border-navy-100",
+    title: "text-navy",
+    muted: "text-navy-200",
+    link: "text-navy hover:text-navy-200",
+  },
+  sky: {
+    card: "bg-gradient-to-br from-sky via-sky to-sky-100 ring-sky shadow-[0_8px_24px_-12px_rgba(48,56,65,0.25)]",
+    head: "border-navy/10",
+    title: "text-navy",
+    muted: "text-navy-600",
+    link: "text-navy hover:text-navy-600",
+  },
+  navy: {
+    card: "bg-gradient-to-br from-navy via-navy to-[#1f252c] text-white ring-navy shadow-[0_12px_32px_-12px_rgba(48,56,65,0.6)]",
+    head: "border-white/10",
+    title: "text-white",
+    muted: "text-white/60",
+    link: "text-accent hover:text-white",
+  },
+  sun: {
+    card: "bg-gradient-to-br from-accent/30 via-accent/10 to-white ring-accent/60 shadow-[0_8px_24px_-12px_rgba(180,160,0,0.35)]",
+    head: "border-navy/10",
+    title: "text-navy",
+    muted: "text-navy-600",
+    link: "text-navy hover:text-navy-600",
+  },
+  paper: {
+    card: "bg-paper ring-navy-100",
+    head: "border-navy-100",
+    title: "text-navy",
+    muted: "text-navy-200",
+    link: "text-navy hover:text-navy-200",
+  },
+};
+
+export function Card({ className, children, tone = "white" }: { className?: string; children: React.ReactNode; tone?: CardTone }) {
+  return <section className={clsx("relative overflow-hidden rounded-3xl ring-1", cardTones[tone].card, className)}>{children}</section>;
 }
 
 export function CardHeader({
@@ -14,25 +54,33 @@ export function CardHeader({
   href,
   action,
   subtitle,
+  tone = "white",
+  icon,
 }: {
   title: string;
   count?: number;
   href?: string;
   action?: React.ReactNode;
   subtitle?: string;
+  tone?: CardTone;
+  icon?: React.ReactNode;
 }) {
+  const t = cardTones[tone];
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-6">
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {title}
-          {count !== undefined && <span className="ml-1.5 text-sm font-normal text-slate-500">({count})</span>}
-        </h2>
-        {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
+    <div className={clsx("flex items-center justify-between gap-4 border-b px-5 py-4 sm:px-6", t.head)}>
+      <div className="flex min-w-0 items-center gap-3">
+        {icon}
+        <div className="min-w-0">
+          <h2 className={clsx("text-lg font-semibold tracking-tight", t.title)}>
+            {title}
+            {count !== undefined && <span className={clsx("ml-1.5 text-sm font-normal", t.muted)}>({count})</span>}
+          </h2>
+          {subtitle && <p className={clsx("mt-0.5 text-sm", t.muted)}>{subtitle}</p>}
+        </div>
       </div>
       {href && (
-        <Link href={href} className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-blue-700 hover:text-blue-800">
-          View all <ChevronRight className="h-4 w-4" aria-hidden />
+        <Link href={href} className={clsx("flex shrink-0 items-center gap-0.5 text-sm font-medium", t.link)}>
+          Ver todo <ChevronRight className="h-4 w-4" aria-hidden />
         </Link>
       )}
       {action}
@@ -41,11 +89,11 @@ export function CardHeader({
 }
 
 const tileTones = {
-  orange: "bg-orange-50 text-orange-600 ring-orange-100",
-  violet: "bg-violet-50 text-violet-600 ring-violet-100",
-  blue: "bg-blue-50 text-blue-600 ring-blue-100",
+  orange: "bg-accent text-navy ring-accent/20",
+  violet: "bg-sky-100 text-navy ring-sky-100",
+  blue: "bg-sky text-navy ring-sky-100",
   green: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  slate: "bg-slate-50 text-slate-600 ring-slate-200",
+  slate: "bg-paper text-navy-200 ring-navy-100",
   red: "bg-red-50 text-red-600 ring-red-100",
 } as const;
 export type Tone = keyof typeof tileTones;
@@ -59,18 +107,18 @@ export function IconTile({ tone, children, className }: { tone: Tone; children: 
 }
 
 export const stageTone: Record<Stage, string> = {
-  prospect: "bg-slate-100 text-slate-700",
-  offer: "bg-violet-100 text-violet-800",
-  under_contract: "bg-blue-100 text-blue-800",
-  due_diligence: "bg-amber-100 text-amber-800",
-  closing: "bg-emerald-100 text-emerald-800",
+  prospect: "bg-sky-100 text-navy",
+  offer: "bg-sky text-navy",
+  under_contract: "bg-sky-100 text-navy",
+  due_diligence: "bg-accent text-navy",
+  closing: "bg-sky-100 text-navy",
 };
 export const stageColor: Record<Stage, string> = {
-  prospect: "#94a3b8",
-  offer: "#8b5cf6",
-  under_contract: "#3b82f6",
-  due_diligence: "#f59e0b",
-  closing: "#10b981",
+  prospect: "#303841",
+  offer: "#D6E6F2",
+  under_contract: "#B8BCC8",
+  due_diligence: "#FFF200",
+  closing: "#303841",
 };
 
 export function StageBadge({ stage }: { stage: Stage }) {
@@ -82,9 +130,9 @@ export function StageBadge({ stage }: { stage: Stage }) {
 }
 
 const statusStyles: Record<TaskStatus, { label: string; cls: string }> = {
-  pending: { label: "Pending", cls: "bg-slate-100 text-slate-700" },
-  in_progress: { label: "In progress", cls: "bg-blue-50 text-blue-700" },
-  completed: { label: "Completed", cls: "bg-emerald-50 text-emerald-700" },
+  pending: { label: "Pendiente", cls: "bg-sky-100 text-navy" },
+  in_progress: { label: "En progreso", cls: "bg-sky text-navy" },
+  completed: { label: "Completada", cls: "bg-emerald-50 text-emerald-700" },
 };
 
 export function StatusPill({ status }: { status: TaskStatus }) {
@@ -92,11 +140,25 @@ export function StatusPill({ status }: { status: TaskStatus }) {
   return <span className={clsx("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", s.cls)}>{s.label}</span>;
 }
 
-export function Avatar({ initials, size = "md" }: { initials: string; size?: "sm" | "md" | "lg" }) {
+export function Avatar({ initials, size = "md", src }: { initials: string; size?: "sm" | "md" | "lg"; src?: string }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={initials}
+        className={clsx(
+          "shrink-0 rounded-full object-cover",
+          size === "sm" && "h-8 w-8",
+          size === "md" && "h-10 w-10",
+          size === "lg" && "h-12 w-12",
+        )}
+      />
+    );
+  }
   return (
     <div
       className={clsx(
-        "grid shrink-0 place-items-center rounded-full bg-slate-100 font-medium text-slate-700",
+        "grid shrink-0 place-items-center rounded-full bg-navy-100 font-medium text-navy",
         size === "sm" && "h-8 w-8 text-xs",
         size === "md" && "h-10 w-10 text-sm",
         size === "lg" && "h-12 w-12 text-base",
@@ -119,21 +181,21 @@ export function StageTracker({ stage }: { stage: Stage }) {
           <li key={s.key} className="relative flex flex-1 flex-col items-center text-center" aria-current={active ? "step" : undefined}>
             {i > 0 && (
               <span
-                className={clsx("absolute right-1/2 top-4 h-0.5 w-full -translate-y-1/2", i <= current ? "bg-blue-600" : "bg-slate-200")}
+                className={clsx("absolute right-1/2 top-4 h-0.5 w-full -translate-y-1/2", i <= current ? "bg-navy" : "bg-navy-100")}
                 aria-hidden
               />
             )}
             <span
               className={clsx(
                 "relative z-10 grid h-8 w-8 place-items-center rounded-full text-sm font-semibold",
-                done && "bg-blue-600 text-white",
-                active && "bg-white text-blue-700 ring-2 ring-blue-600",
-                !done && !active && "bg-white text-slate-400 ring-2 ring-slate-200",
+                done && "bg-navy text-white",
+                active && "bg-white text-navy ring-2 ring-navy",
+                !done && !active && "bg-white text-navy-200 ring-2 ring-navy-100",
               )}
             >
               {done ? <Check className="h-4 w-4" aria-hidden /> : i + 1}
             </span>
-            <span className={clsx("mt-2 px-1 text-[11px] leading-tight sm:text-xs", active ? "font-semibold text-slate-900" : "text-slate-500")}>
+            <span className={clsx("mt-2 px-1 text-[11px] leading-tight sm:text-xs", active ? "font-semibold text-navy" : "text-navy-200")}>
               {s.label}
             </span>
           </li>
@@ -149,7 +211,7 @@ export function Donut({ segments, size = 168 }: { segments: { value: number; col
   let offset = 25;
   return (
     <svg viewBox="0 0 42 42" width={size} height={size} role="img" aria-label="Pipeline by stage">
-      <circle cx="21" cy="21" r={r} fill="none" stroke="#f1f5f9" strokeWidth="7" />
+      <circle cx="21" cy="21" r={r} fill="none" stroke="#e8f2f9" strokeWidth="7" />
       {segments.map((s, i) => {
         const pct = (s.value / total) * 100;
         const el = (
@@ -174,12 +236,12 @@ export function Donut({ segments, size = 168 }: { segments: { value: number; col
 
 export function DateTile({ day, month }: { day: number; month: string }) {
   return (
-    <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-50 ring-1 ring-slate-200" aria-hidden>
-      <span className="absolute -top-1 left-3 h-2 w-0.5 rounded bg-slate-300" />
-      <span className="absolute -top-1 right-3 h-2 w-0.5 rounded bg-slate-300" />
+    <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-paper ring-1 ring-navy-100" aria-hidden>
+      <span className="absolute -top-1 left-3 h-2 w-0.5 rounded bg-navy-100" />
+      <span className="absolute -top-1 right-3 h-2 w-0.5 rounded bg-navy-100" />
       <div className="text-center leading-none">
-        <div className="text-base font-semibold text-slate-900">{day}</div>
-        <div className="mt-0.5 text-[10px] uppercase text-slate-500">{month}</div>
+        <div className="text-base font-semibold text-navy">{day}</div>
+        <div className="mt-0.5 text-[10px] uppercase text-navy-200">{month}</div>
       </div>
     </div>
   );

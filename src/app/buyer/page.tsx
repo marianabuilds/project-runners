@@ -1,10 +1,10 @@
-import { Mail, Phone } from "lucide-react";
-import { PageHeader } from "@/components/page-header";
+import { Eye, Mail, MessageCircle, Phone } from "lucide-react";
 import { TaskList } from "@/components/task-list";
 import { Timeline } from "@/components/timeline";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "@/components/ui";
 import { agent, dealById, eventsFor, tasksFor } from "@/lib/data";
 import { daysFromToday, fmtDate, pen, shortAddress } from "@/lib/format";
+import { waLink } from "@/lib/whatsapp";
 
 // Preview of what the buyer (Lucía) sees for deal d1.
 export default function BuyerView() {
@@ -13,78 +13,96 @@ export default function BuyerView() {
   const events = eventsFor(deal.id);
   const nextThree = events.filter((e) => daysFromToday(e.date) >= 0).slice(0, 3);
   const open = myTasks.filter((t) => t.status !== "completed").length;
+  const btn = "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition";
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-900 ring-1 ring-amber-200">
-        Preview: this is what <strong>{deal.buyer.name}</strong> sees.
+    <div className="mx-auto max-w-3xl space-y-5 pb-10">
+      <div className="flex items-center gap-2 rounded-2xl bg-accent/40 px-4 py-2.5 text-sm text-navy ring-1 ring-accent">
+        <Eye className="h-4 w-4 shrink-0" aria-hidden />
+        <span>
+          Previsualización: esto es lo que ve <strong>{deal.buyer.name}</strong>.
+        </span>
       </div>
-      <PageHeader
-        title={<>Hola, {deal.buyer.name.split(" ")[0]} <span aria-hidden>👋</span></>}
-        subtitle={<>You have {open} {open === 1 ? "thing" : "things"} to do for your new home.</>}
-      />
 
-      <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-br from-blue-50 to-white px-5 py-5 sm:px-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-sm text-slate-500">Your home</p>
-              <p className="text-xl font-semibold text-slate-900">{shortAddress(deal)}</p>
-              <p className="text-sm text-slate-600">{deal.address.district}, {deal.address.province}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-semibold tabular-nums text-slate-900">{pen(deal.pricePen)}</p>
-              <StageBadge stage={deal.stage} />
-            </div>
+      {/* Hero */}
+      <Card tone="navy" className="p-6 sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/20 blur-3xl" aria-hidden />
+        <div className="relative">
+          <p className="text-sm text-white/60">
+            Hola, {deal.buyer.name.split(" ")[0]} <span aria-hidden>👋</span>
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{shortAddress(deal)}</h1>
+          <p className="text-white/60">
+            {deal.address.district}, {deal.address.province}
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-3xl font-semibold tabular-nums">{pen(deal.pricePen)}</p>
+            <StageBadge stage={deal.stage} />
           </div>
+          <p className="mt-4 rounded-2xl bg-white/10 px-4 py-3 text-sm">
+            Tienes <strong className="text-accent">{open}</strong> {open === 1 ? "cosa" : "cosas"} por hacer para tu nuevo hogar.
+          </p>
         </div>
-        <div className="border-t border-slate-100 px-3 py-6 sm:px-6">
+      </Card>
+
+      <Card>
+        <CardHeader title="Progreso de tu compra" />
+        <div className="px-3 py-6 sm:px-6">
           <StageTracker stage={deal.stage} />
         </div>
       </Card>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        {nextThree.map((e) => (
-          <Card key={e.id} className="px-4 py-3">
-            <p className="text-xs text-slate-500">{e.name}</p>
-            <p className="mt-1 font-semibold text-slate-900">{fmtDate(e.date)}</p>
-            <p className="text-xs text-slate-500">in {daysFromToday(e.date)} days</p>
+      {/* Next dates */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        {nextThree.map((e, i) => (
+          <Card key={e.id} tone={i === 0 ? "sun" : "sky"} className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-navy-600">{e.name}</p>
+            <p className="mt-1 font-semibold text-navy">{fmtDate(e.date)}</p>
+            <p className="text-xs text-navy-600">en {daysFromToday(e.date)} días</p>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader title="Your tasks" count={myTasks.length} />
-            <TaskList initial={myTasks} buyerName={deal.buyer.name} mode="buyer" />
-          </Card>
+      <Card tone="sky">
+        <CardHeader tone="sky" title="Tus tareas" count={myTasks.length} />
+        <div className="bg-white">
+          <TaskList initial={myTasks} buyerName={deal.buyer.name} mode="buyer" />
         </div>
-        <div className="space-y-6">
-          <Card>
-            <CardHeader title="Timeline" />
-            <Timeline events={events} />
-          </Card>
-          <Card>
-            <CardHeader title="Your agent" />
-            <div className="flex items-center gap-3 px-5 pt-4 sm:px-6">
-              <Avatar initials={agent.initials} size="lg" />
-              <div>
-                <p className="font-medium text-slate-900">{agent.name}</p>
-                <p className="text-sm text-slate-500">{agent.agency}</p>
-              </div>
+      </Card>
+
+      <Card tone="sun">
+        <CardHeader tone="sun" title="Cronograma" />
+        <Timeline events={events} />
+      </Card>
+
+      <Card tone="paper">
+        <CardHeader tone="paper" title="Tu agente" />
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-navy/5">
+            <Avatar initials={agent.initials} size="lg" src={agent.photo} />
+            <div>
+              <p className="font-semibold text-navy">{agent.name}</p>
+              <p className="text-sm text-navy-200">{agent.agency}</p>
             </div>
-            <div className="space-y-2 px-5 py-4 text-sm sm:px-6">
-              <a href={`mailto:${agent.email}`} className="flex items-center gap-2 text-slate-700 hover:text-blue-700">
-                <Mail className="h-4 w-4 text-slate-400" aria-hidden /> {agent.email}
-              </a>
-              <a href={`tel:${agent.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-slate-700 hover:text-blue-700">
-                <Phone className="h-4 w-4 text-slate-400" aria-hidden /> {agent.phone}
-              </a>
-            </div>
-          </Card>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <a href={`tel:${agent.phone.replace(/\s/g, "")}`} className={`${btn} bg-navy text-white hover:bg-navy-600`}>
+              <Phone className="h-4 w-4" aria-hidden /> Llamar
+            </a>
+            <a
+              href={waLink(agent.phone, "Hola! Me gustaría hablar contigo sobre mi propiedad.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${btn} bg-accent text-navy hover:brightness-95`}
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
+            </a>
+            <a href={`mailto:${agent.email}`} className={`${btn} bg-white text-navy ring-1 ring-navy/10 hover:bg-paper`}>
+              <Mail className="h-4 w-4" aria-hidden /> Correo
+            </a>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

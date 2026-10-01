@@ -8,14 +8,14 @@ export function StageControl({ initial }: { initial: Stage }) {
   const [stage, setStage] = useState(initial);
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
-        <h2 className="text-lg font-semibold text-slate-900">Deal progress</h2>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          Stage
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-navy-100 px-5 py-4 sm:px-6">
+        <h2 className="text-lg font-semibold text-navy">Progreso del negocio</h2>
+        <label className="flex items-center gap-2 text-sm text-navy-200">
+          Etapa
           <select
             value={stage}
             onChange={(e) => setStage(e.target.value as Stage)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-900"
+            className="rounded-lg border border-navy-100 bg-white px-3 py-1.5 text-sm font-medium text-navy"
           >
             {STAGES.map((s) => (
               <option key={s.key} value={s.key}>

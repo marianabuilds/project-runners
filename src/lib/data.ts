@@ -4,6 +4,7 @@ export const TODAY = "2026-09-29";
 export type Stage = "prospect" | "offer" | "under_contract" | "due_diligence" | "closing";
 export type TaskStatus = "pending" | "in_progress" | "completed";
 export type Assignee = "agent" | "buyer";
+export type TaskAction = "upload" | "sign" | "schedule" | "review" | "send" | "request" | "prepare" | "confirm" | "transfer";
 export type EventType = "offer" | "inspection" | "appraisal" | "closing" | "custom";
 
 export const STAGES: { key: Stage; label: string }[] = [
@@ -22,6 +23,7 @@ export type Task = {
   assignee: Assignee;
   status: TaskStatus;
   dueDate: string;
+  action: TaskAction;
 };
 
 export type TimelineEvent = {
@@ -119,16 +121,16 @@ export const deals: Deal[] = [
 ];
 
 export const tasks: Task[] = [
-  { id: "t1", dealId: "d1", title: "Cargar carta de precalificación", description: "Envía la carta de precalificación del banco para que podamos compartirla con el vendedor.", assignee: "buyer", status: "pending", dueDate: "2026-09-29" },
-  { id: "t2", dealId: "d1", title: "Programar inspección del inmueble", description: "Coordina una hora con el inspector y el vendedor.", assignee: "agent", status: "in_progress", dueDate: "2026-09-30" },
-  { id: "t3", dealId: "d1", title: "Revisar reporte de inspección", assignee: "buyer", status: "pending", dueDate: "2026-10-08" },
-  { id: "t4", dealId: "d1", title: "Firmar carta de oferta", assignee: "buyer", status: "completed", dueDate: "2026-09-12" },
-  { id: "t5", dealId: "d2", title: "Enviar copia de DNI al notario", description: "El notario necesita una copia de ambos lados de tu DNI.", assignee: "buyer", status: "pending", dueDate: "2026-09-26" },
-  { id: "t6", dealId: "d2", title: "Solicitar certificado de partida registral (SUNARP)", assignee: "agent", status: "pending", dueDate: "2026-10-02" },
-  { id: "t7", dealId: "d3", title: "Preparar contraoferta", assignee: "agent", status: "in_progress", dueDate: "2026-10-01" },
-  { id: "t8", dealId: "d5", title: "Confirmar cita con notario", assignee: "agent", status: "completed", dueDate: "2026-09-25" },
-  { id: "t9", dealId: "d5", title: "Transferir cuota inicial", description: "Transfiere el saldo a la cuenta de depósito en garantía del notario.", assignee: "buyer", status: "in_progress", dueDate: "2026-10-03" },
-  { id: "t10", dealId: "d4", title: "Programar segunda visita", assignee: "agent", status: "pending", dueDate: "2026-10-05" },
+  { id: "t1", dealId: "d1", title: "Cargar carta de precalificación", description: "Envía la carta de precalificación del banco para que podamos compartirla con el vendedor.", assignee: "buyer", status: "pending", dueDate: "2026-09-29", action: "upload" },
+  { id: "t2", dealId: "d1", title: "Programar inspección del inmueble", description: "Coordina una hora con el inspector y el vendedor.", assignee: "agent", status: "in_progress", dueDate: "2026-09-30", action: "schedule" },
+  { id: "t3", dealId: "d1", title: "Revisar reporte de inspección", assignee: "buyer", status: "pending", dueDate: "2026-10-08", action: "review" },
+  { id: "t4", dealId: "d1", title: "Firmar carta de oferta", assignee: "buyer", status: "completed", dueDate: "2026-09-12", action: "sign" },
+  { id: "t5", dealId: "d2", title: "Enviar copia de DNI al notario", description: "El notario necesita una copia de ambos lados de tu DNI.", assignee: "buyer", status: "pending", dueDate: "2026-09-26", action: "send" },
+  { id: "t6", dealId: "d2", title: "Solicitar certificado de partida registral (SUNARP)", assignee: "agent", status: "pending", dueDate: "2026-10-02", action: "request" },
+  { id: "t7", dealId: "d3", title: "Preparar contraoferta", assignee: "agent", status: "in_progress", dueDate: "2026-10-01", action: "prepare" },
+  { id: "t8", dealId: "d5", title: "Confirmar cita con notario", assignee: "agent", status: "completed", dueDate: "2026-09-25", action: "confirm" },
+  { id: "t9", dealId: "d5", title: "Transferir cuota inicial", description: "Transfiere el saldo a la cuenta de depósito en garantía del notario.", assignee: "buyer", status: "in_progress", dueDate: "2026-10-03", action: "transfer" },
+  { id: "t10", dealId: "d4", title: "Programar segunda visita", assignee: "agent", status: "pending", dueDate: "2026-10-05", action: "schedule" },
 ];
 
 export const timeline: TimelineEvent[] = [

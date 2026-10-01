@@ -1,7 +1,7 @@
 import Link from "next/link";
 import clsx from "clsx";
-import { Check, ChevronRight } from "lucide-react";
-import { STAGES, type Stage, type TaskStatus } from "@/lib/data";
+import { Banknote, CalendarPlus, Check, ChevronRight, Eye, FilePen, FileSearch, PenLine, Send, Upload, type LucideIcon } from "lucide-react";
+import { STAGES, type Stage, type TaskAction, type TaskStatus } from "@/lib/data";
 import { stageIndex, stageLabel } from "@/lib/format";
 
 export type CardTone = "white" | "sky" | "navy" | "sun" | "paper";
@@ -246,3 +246,15 @@ export function DateTile({ day, month }: { day: number; month: string }) {
     </div>
   );
 }
+
+export const taskCta: Record<TaskAction, { label: string; Icon: LucideIcon }> = {
+  upload: { label: "Subir", Icon: Upload },
+  sign: { label: "Firmar", Icon: PenLine },
+  schedule: { label: "Programar", Icon: CalendarPlus },
+  review: { label: "Revisar", Icon: Eye },
+  send: { label: "Enviar", Icon: Send },
+  request: { label: "Solicitar", Icon: FileSearch },
+  prepare: { label: "Preparar", Icon: FilePen },
+  confirm: { label: "Confirmar", Icon: Check },
+  transfer: { label: "Transferir", Icon: Banknote },
+};

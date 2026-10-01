@@ -13,6 +13,31 @@ export function itemVisual(i: CalItem) {
   return { Icon: ClipboardCheck, box: "bg-sky text-navy" };
 }
 
+const badgeStyle = {
+  hito: "bg-navy text-white",
+  tarea: "bg-[#7FA8C9]/30 text-navy",
+  comprador: "bg-accent text-navy ring-1 ring-navy/20",
+  atrasada: "bg-red-50 text-red-700 ring-1 ring-red-200",
+} as const;
+const badgeLabel = { hito: "Hito", tarea: "Tu tarea", comprador: "Comprador", atrasada: "Atrasada" } as const;
+
+export function Badge({ kind }: { kind: keyof typeof badgeStyle }) {
+  return (
+    <span className={clsx("inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold", badgeStyle[kind])}>
+      {badgeLabel[kind]}
+    </span>
+  );
+}
+
+export function ItemBadges({ item }: { item: CalItem }) {
+  return (
+    <span className="flex flex-wrap items-center justify-end gap-1">
+      {item.overdue && <Badge kind="atrasada" />}
+      {item.kind === "event" ? <Badge kind="hito" /> : item.assignee === "buyer" ? <Badge kind="comprador" /> : <Badge kind="tarea" />}
+    </span>
+  );
+}
+
 export function AgendaRow({ item, right }: { item: CalItem; right?: React.ReactNode }) {
   const { Icon, box } = itemVisual(item);
   return (
@@ -27,7 +52,7 @@ export function AgendaRow({ item, right }: { item: CalItem; right?: React.ReactN
         <p className={clsx("truncate font-medium text-navy", item.done && "text-navy-200 line-through")}>{item.title}</p>
         <p className="truncate text-sm text-navy-200">{item.sub}</p>
       </div>
-      {right}
+      {right ?? <ItemBadges item={item} />}
     </Link>
   );
 }

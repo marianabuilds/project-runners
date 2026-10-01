@@ -4,7 +4,6 @@ import Link from "next/link";
 import clsx from "clsx";
 import { CalendarDays, ChevronRight, ListChecks, MessageCircle, TrendingUp, Target } from "lucide-react";
 import { ActivityFeed } from "@/components/activity-feed";
-import { AskCard } from "@/components/ask-card";
 import { AddTask } from "@/components/add-task";
 import { Checklist } from "@/components/checklist";
 import { CierreCountdown } from "@/components/charts";
@@ -35,8 +34,6 @@ export function AgentDashboard() {
   return (
     <div className="mx-auto max-w-7xl pb-10">
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <AskCard />
-
         {/* Hero */}
         <Card tone="navy" className="p-6 sm:p-8 lg:col-span-12">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/20 blur-3xl" aria-hidden />

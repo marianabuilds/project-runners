@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito_Sans } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
+import { AskFloating } from "@/components/ask-floating";
 import { Topbar } from "@/components/topbar";
 import { StoreProvider } from "@/lib/store";
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               {children}
             </main>
           </div>
+          <AskFloating />
         </StoreProvider>
       </body>
     </html>

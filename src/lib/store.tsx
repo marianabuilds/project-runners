@@ -7,7 +7,7 @@ import { ACTION_DOC_STATUS, accounts, audit, docs as seedDocs, STAGES, type Doc,
 // (synced across tabs via the `storage` event). The role itself is per-tab (sessionStorage).
 type Shared = { docs: Doc[]; tasks: Task[]; stages: Record<string, Stage>; activity: AuditEntry[]; lastSync: string };
 
-const KEY = "trato-demo-v1";
+const KEY = "trato-demo-v2";
 const ROLE_KEY = "trato-demo-role";
 const DEAL_KEY = "trato-demo-deal";
 const DOC_STATUS_LABEL: Record<DocStatus, string> = { pendiente: "Pendiente", subido: "Subido", en_revision: "En revisión", firmado: "Firmado", aprobado: "Aprobado" };

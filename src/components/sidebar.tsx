@@ -19,70 +19,42 @@ import {
 import { accounts, type Role } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { Avatar } from "./ui";
+import { Logo } from "./logo";
 
-const sections = [
-  {
-    heading: null,
-    items: [
-      { href: "/", label: "Panel", icon: LayoutDashboard },
-      { href: "/calendar", label: "Calendario", icon: CalendarRange },
-    ],
-  },
-  {
-    heading: "Negocios",
-    items: [
-      { href: "/tasks", label: "Tareas", icon: ListChecks },
-      { href: "/documents", label: "Documentos", icon: FileText },
-    ],
-  },
-  {
-    heading: "Cuenta",
-    items: [{ href: "/settings", label: "Configuración", icon: Settings }],
-  },
+const items = [
+  { href: "/", label: "Panel", icon: LayoutDashboard },
+  { href: "/calendar", label: "Calendario", icon: CalendarRange },
+  { href: "/tasks", label: "Tareas", icon: ListChecks },
+  { href: "/documents", label: "Documentos", icon: FileText },
+  { href: "/settings", label: "Configuración", icon: Settings },
 ];
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-navy text-lg font-bold text-white" aria-hidden>
-        T
-      </span>
-      <span className="text-xl font-semibold tracking-tight text-ink">trato</span>
-    </Link>
-  );
-}
 
 function Nav({ onNavigate }: { onNavigate?: () => void }) {
   const path = usePathname();
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
   return (
-    <nav aria-label="Main" className="flex-1 overflow-y-auto px-3">
-      {sections.map((sec, i) => (
-        <div key={i} className={clsx(i > 0 && "mt-6")}>
-          {sec.heading && <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{sec.heading}</p>}
-          <ul className="space-y-0.5">
-            {sec.items.map(({ href, label, icon: Icon }) => {
-              const active = isActive(href);
-              return (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    onClick={onNavigate}
-                    aria-current={active ? "page" : undefined}
-                    className={clsx(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
-                      active ? "bg-sky font-bold text-ink" : "text-ink hover:bg-paper",
-                    )}
-                  >
-                    <Icon className={clsx("h-5 w-5", active ? "text-ink" : "text-ink-muted")} aria-hidden />
-                    {label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+    <nav aria-label="Principal" className="flex-1 overflow-y-auto px-3">
+      <ul className="space-y-0.5">
+        {items.map(({ href, label, icon: Icon }) => {
+          const active = isActive(href);
+          return (
+            <li key={href}>
+              <Link
+                href={href}
+                onClick={onNavigate}
+                aria-current={active ? "page" : undefined}
+                className={clsx(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                  active ? "bg-sky font-bold text-ink" : "text-ink hover:bg-paper",
+                )}
+              >
+                <Icon className={clsx("h-5 w-5", active ? "text-ink" : "text-ink-muted")} aria-hidden />
+                {label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

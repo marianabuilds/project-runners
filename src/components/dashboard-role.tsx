@@ -68,7 +68,7 @@ export function RoleDashboard() {
           </div>
         </Card>
 
-        <div className="space-y-5 lg:col-span-7">
+        <div className="space-y-5 lg:col-span-12">
         <Card tone="sky">
           <CardHeader
             tone="sky"
@@ -84,7 +84,7 @@ export function RoleDashboard() {
         </Card>
 
         </div>
-        <div className="space-y-5 lg:col-span-5">
+        <div className="space-y-5 lg:col-span-12">
         <Card>
           <CardHeader
             title="Esta semana"

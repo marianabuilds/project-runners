@@ -85,12 +85,12 @@ export const deals: Deal[] = [
   {
     id: "d1",
     address: { street: "Av. José Larco", number: "1150", district: "Miraflores", province: "Lima", department: "Lima" },
-    buyer: { name: "Camila Bacan", email: "camila.bacan@example.com", phone: "+51 912 345 678", initials: "CB" },
+    buyer: { name: "Melanie Torres", email: "melanie.torres@example.com", phone: "+51 912 345 678", initials: "MT" },
     pricePen: 685000,
     listingPricePen: 720000,
     stage: "due_diligence",
     targetCloseDate: "2026-11-06",
-    sellerName: "Jorge Salazar",
+    sellerName: "Stephen Reyes",
     notes: "La compradora prefiere cerrar antes de fin de noviembre. Vendedor flexible con muebles.",
   },
   {
@@ -172,15 +172,15 @@ export const timeline: TimelineEvent[] = [
 
 export const audit: AuditEntry[] = [
   { id: "a1", dealId: "d1", who: "Maricarmen Fransi", what: "Movió la etapa de Bajo contrato a Diligencia debida", when: "2026-09-27T16:10:00" },
-  { id: "a2", dealId: "d1", who: "Camila Bacan", what: 'Completó "Firmar carta de oferta"', when: "2026-09-12T11:42:00" },
+  { id: "a2", dealId: "d1", who: "Melanie Torres", what: 'Completó "Firmar carta de oferta"', when: "2026-09-12T11:42:00" },
   { id: "a3", dealId: "d1", who: "Maricarmen Fransi", what: 'Creó la tarea "Cargar carta de precalificación"', when: "2026-09-11T09:05:00" },
   { id: "a4", dealId: "d1", who: "Maricarmen Fransi", what: "Creó el negocio", when: "2026-09-08T14:30:00" },
 ];
 
 export const accounts: Record<Role, { name: string; initials: string; label: string; photo?: string; dealIds: string[] | "all" }> = {
   agent: { name: agent.name, initials: agent.initials, label: "Agente", photo: agent.photo, dealIds: "all" },
-  buyer: { name: "Camila Bacan", initials: "CB", label: "Compradora", dealIds: ["d1"] },
-  seller: { name: "Jorge Salazar", initials: "JS", label: "Vendedor", dealIds: ["d1"] },
+  buyer: { name: "Melanie Torres", initials: "MT", label: "Compradora", dealIds: ["d1"] },
+  seller: { name: "Stephen Reyes", initials: "SR", label: "Vendedor", dealIds: ["d1"] },
 };
 
 // Initial shared state (demo). Real value lives in the store.
@@ -188,10 +188,10 @@ export const INITIAL_SYNC = "2026-09-29T08:40:00";
 
 const A = "Maricarmen Fransi";
 export const docs: Doc[] = [
-  { id: "doc1", dealId: "d1", name: "Carta de oferta", category: "Oferta", status: "firmado", updatedAt: "2026-09-12T11:42:00", updatedBy: "Camila Bacan", note: "Firmada y enviada al vendedor.", owner: "shared" },
+  { id: "doc1", dealId: "d1", name: "Carta de oferta", category: "Oferta", status: "firmado", updatedAt: "2026-09-12T11:42:00", updatedBy: "Melanie Torres", note: "Firmada y enviada al vendedor.", owner: "shared" },
   { id: "doc2", dealId: "d1", name: "Carta de precalificación", category: "Financiamiento", status: "pendiente", updatedAt: "2026-09-11T09:05:00", updatedBy: A, note: "Esperando respuesta del banco.", owner: "buyer" },
   { id: "doc3", dealId: "d1", name: "DNI del comprador", category: "Identidad", status: "aprobado", updatedAt: "2026-09-14T10:00:00", updatedBy: A, owner: "buyer" },
-  { id: "doc4", dealId: "d1", name: "Título de propiedad", category: "Propiedad", status: "pendiente", updatedAt: "2026-09-20T15:30:00", updatedBy: A, note: "Jorge lo enviará esta semana.", owner: "seller" },
+  { id: "doc4", dealId: "d1", name: "Título de propiedad", category: "Propiedad", status: "pendiente", updatedAt: "2026-09-20T15:30:00", updatedBy: A, note: "Stephen lo enviará esta semana.", owner: "seller" },
   { id: "doc5", dealId: "d1", name: "Contrato de compraventa", category: "Notaría", status: "en_revision", updatedAt: "2026-09-27T16:10:00", updatedBy: A, note: "Borrador con el notario.", owner: "shared" },
   { id: "d2doc1", dealId: "d2", name: "Carta de oferta", category: "Oferta", status: "firmado", updatedAt: "2026-09-18T12:00:00", updatedBy: "Carlos Mendoza", owner: "shared" },
   { id: "d2doc2", dealId: "d2", name: "DNI para el notario", category: "Identidad", status: "pendiente", updatedAt: "2026-09-22T09:00:00", updatedBy: A, note: "Ambos lados, en PDF.", owner: "buyer" },

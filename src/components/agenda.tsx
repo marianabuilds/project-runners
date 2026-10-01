@@ -4,7 +4,6 @@ import Link from "next/link";
 import clsx from "clsx";
 import { AlertCircle, CheckCircle2, ClipboardCheck, FileText, Home, KeyRound, Search, UserRound } from "lucide-react";
 import { dotClass, type CalItem } from "@/lib/calendar";
-import { useStore } from "@/lib/store";
 
 const eventIcon = { offer: FileText, inspection: Search, appraisal: Home, closing: KeyRound, custom: ClipboardCheck };
 
@@ -40,11 +39,10 @@ export const ownerBadge = (assignee: "agent" | "buyer" | "seller", role: "agent"
   assignee === role ? "tarea" : assignee === "buyer" ? "comprador" : assignee === "seller" ? "vendedor" : "agente";
 
 export function ItemBadges({ item }: { item: CalItem }) {
-  const { role } = useStore();
   return (
     <span className="flex flex-wrap items-center justify-end gap-1">
       {item.overdue && <Badge kind="atrasada" />}
-      {item.kind === "event" ? <Badge kind="hito" /> : <Badge kind={ownerBadge(item.assignee ?? "agent", role)} />}
+      {item.kind === "event" ? <Badge kind="hito" /> : <Badge kind="tarea" />}
     </span>
   );
 }
@@ -75,24 +73,5 @@ export function Dots({ items, max = 4 }: { items: CalItem[]; max?: number }) {
         <span key={i.id} className={clsx("h-1.5 w-1.5 rounded-full", dotClass(i))} />
       ))}
     </span>
-  );
-}
-
-export function Legend() {
-  const l = [
-    ["bg-navy", "Hito"],
-    ["bg-[#7FA8C9]", "Agente"],
-    ["bg-accent ring-1 ring-navy/30", "Comprador"],
-    ["bg-emerald-500", "Vendedor"],
-    ["bg-red-500", "Atrasada"],
-  ];
-  return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
-      {l.map(([c, t]) => (
-        <li key={t} className="flex items-center gap-1.5">
-          <span className={clsx("h-2 w-2 rounded-full", c)} /> {t}
-        </li>
-      ))}
-    </ul>
   );
 }

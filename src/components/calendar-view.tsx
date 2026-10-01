@@ -3,7 +3,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { AgendaRow, Dots, Legend } from "./agenda";
+import { AgendaRow, Dots } from "./agenda";
 import { Card, CardHeader } from "./ui";
 import { TODAY } from "@/lib/data";
 import { allItems, groupByDate, monthGrid, monthKey, monthLabel, shiftMonth, WEEKDAYS_LONG } from "@/lib/calendar";
@@ -85,9 +85,6 @@ export function CalendarView({ ym, selected }: { ym: string; selected: string })
                 </Link>
               );
             })}
-          </div>
-          <div className="border-t border-navy-100 bg-paper p-4">
-            <Legend />
           </div>
         </Card>
 

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import clsx from "clsx";
-import { CalendarClock, CalendarDays, ChevronRight, ListChecks, MessageCircle, TrendingUp, TriangleAlert, Target } from "lucide-react";
+import { CalendarDays, ChevronRight, ListChecks, MessageCircle, TrendingUp, Target } from "lucide-react";
 import { ActivityFeed } from "@/components/activity-feed";
 import { AddTask } from "@/components/add-task";
 import { Checklist } from "@/components/checklist";
-import { CierreCountdown, ProgressRing } from "@/components/charts";
+import { CierreCountdown } from "@/components/charts";
 import { WeekStrip } from "@/components/week-strip";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "@/components/ui";
 import { agent, STAGES, TODAY } from "@/lib/data";
@@ -26,17 +26,10 @@ export function AgentDashboard() {
   const isAll = scoped.isAll;
   const openTasks = tasks.filter((t) => t.status !== "completed").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   const overdue = openTasks.filter((t) => daysFromToday(t.dueDate) < 0);
-  const dueToday = openTasks.filter((t) => t.dueDate === TODAY);
-  const done = tasks.filter((t) => t.status === "completed").length;
-  const completion = tasks.length ? (done / tasks.length) * 100 : 0;
   const closings = [...deals].sort((a, b) => a.targetCloseDate.localeCompare(b.targetCloseDate));
   const deal = deals[0];
   const sync = `Se actualiza desde WhatsApp · ${fmtDateTime(lastSync)}`;
 
-  const kpis = [
-    { label: "Para hoy", value: dueToday.length, icon: <CalendarClock className="h-5 w-5" />, tile: "bg-sky text-ink", hint: "tareas con vencimiento hoy" },
-    { label: "Atrasadas", value: overdue.length, icon: <TriangleAlert className="h-5 w-5" />, tile: overdue.length ? "bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", hint: overdue.length ? "requieren atención" : "todo al día" },
-  ];
 
   return (
     <div className="mx-auto max-w-7xl pb-10">
@@ -144,32 +137,8 @@ export function AgentDashboard() {
           )
         )}
 
-        {/* KPI tiles */}
-        {kpis.map((k) => (
-          <Card key={k.label} className="p-5 lg:col-span-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm text-ink-muted">{k.label}</p>
-                <p className="mt-1 text-3xl font-semibold tabular-nums leading-none text-ink">{k.value}</p>
-              </div>
-              <IconBox className={k.tile}>{k.icon}</IconBox>
-            </div>
-            <p className="mt-4 text-xs text-ink-muted">{k.hint}</p>
-          </Card>
-        ))}
-        <Card className="p-5 lg:col-span-4">
-          <div className="flex items-center gap-4">
-            <ProgressRing value={completion} size={72} label={`${Math.round(completion)}% de tareas completadas`} />
-            <div>
-              <p className="text-sm text-ink-muted">Avance de tareas</p>
-              <p className="mt-1 text-lg font-semibold text-ink">{done} de {tasks.length}</p>
-              <p className="text-xs text-ink-muted">completadas</p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Left: to do · Right: week + recent activity */}
-        <div className="space-y-5 lg:col-span-7">
+        {/* Vertical flow: to do, week, activity */}
+        <div className="space-y-5 lg:col-span-12">
           <Card tone="sky">
             <CardHeader
               tone="sky"
@@ -185,7 +154,7 @@ export function AgentDashboard() {
             </div>
           </Card>
         </div>
-        <div className="space-y-5 lg:col-span-5">
+        <div className="space-y-5 lg:col-span-12">
           <Card>
             <CardHeader
               title="Esta semana"

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import clsx from "clsx";
-import { AgendaRow, Dots, Legend } from "./agenda";
+import { AgendaRow, Dots } from "./agenda";
 import { allItems, groupByDate, weekOf, WEEKDAYS_LONG, weekdayIndex } from "@/lib/calendar";
 import { TODAY } from "@/lib/data";
 import { useStore } from "@/lib/store";
@@ -54,9 +54,6 @@ export function WeekStrip() {
         {items.map((i) => (
           <AgendaRow key={i.id} item={i} />
         ))}
-        <div className="px-1 pt-2">
-          <Legend />
-        </div>
       </div>
     </div>
   );

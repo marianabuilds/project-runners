@@ -44,11 +44,11 @@ export default function NewDealPage() {
           <Field label="Precio oferta (S/)" id="price" inputMode="decimal" placeholder="685,000.00" />
           <Field label="Precio de lista (S/)" id="listing" inputMode="decimal" placeholder="720,000.00" hint="Opcional" />
           <Field label="Fecha de cierre objetivo" id="close" type="date" hint="Típico: 45–60 días después de la oferta" />
-          <Field label="Nombre del vendedor" id="seller" placeholder="Jorge Salazar" />
+          <Field label="Nombre del vendedor" id="seller" placeholder="Stephen Reyes" />
         </Section>
         <Section title="Comprador" className="lg:col-span-6">
-          <Field label="Nombre del comprador" id="buyer" placeholder="Camila Bacan" />
-          <Field label="Correo del comprador" id="buyerEmail" type="email" placeholder="camila@example.com" hint="Le enviaremos un enlace de invitación" />
+          <Field label="Nombre del comprador" id="buyer" placeholder="Melanie Torres" />
+          <Field label="Correo del comprador" id="buyerEmail" type="email" placeholder="melanie@example.com" hint="Le enviaremos un enlace de invitación" />
         </Section>
         <div className="flex items-end justify-end gap-3 lg:col-span-6">
           <Link href="/deals" className="rounded-xl px-4 py-2.5 text-sm font-medium text-ink hover:bg-surface">Cancelar</Link>

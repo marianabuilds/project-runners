@@ -7,6 +7,7 @@ import { ActivityFeed } from "@/components/activity-feed";
 import { AddTask } from "@/components/add-task";
 import { Checklist } from "@/components/checklist";
 import { CierreCountdown } from "@/components/charts";
+import { DailyDigest } from "@/components/daily-digest";
 import { WeekStrip } from "@/components/week-strip";
 import { Avatar, Card, CardHeader, StageBadge, StageTracker } from "@/components/ui";
 import { agent, STAGES, TODAY } from "@/lib/data";
@@ -53,6 +54,9 @@ export function AgentDashboard() {
             </div>
           </div>
         </Card>
+
+        {/* Daily digest */}
+        <DailyDigest tasks={tasks} activities={scoped.activity} today={TODAY} />
 
         {/* Cuenta regresiva (calendar icon) */}
         <Card tone="sun" className="lg:col-span-5">

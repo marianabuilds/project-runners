@@ -37,3 +37,11 @@ next-env.d.ts
 
 # Claude Code
 .claude/
+.env
+.env*
+node_modules/
+.next/
+dist/
+build/
+out/
+*.key

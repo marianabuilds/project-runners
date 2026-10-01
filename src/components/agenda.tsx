@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import clsx from "clsx";
 import { AlertCircle, CheckCircle2, ClipboardCheck, FileText, Home, KeyRound, Search, UserRound } from "lucide-react";
 import { dotClass, type CalItem } from "@/lib/calendar";
+import { useStore } from "@/lib/store";
 
 const eventIcon = { offer: FileText, inspection: Search, appraisal: Home, closing: KeyRound, custom: ClipboardCheck };
 
@@ -17,11 +20,14 @@ const badgeStyle = {
   hito: "bg-navy text-white",
   tarea: "bg-[#7FA8C9]/30 text-navy",
   comprador: "bg-accent text-navy ring-1 ring-navy/20",
+  vendedor: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  agente: "bg-navy-50 text-navy ring-1 ring-navy-100",
   atrasada: "bg-red-50 text-red-700 ring-1 ring-red-200",
 } as const;
-const badgeLabel = { hito: "Hito", tarea: "Tu tarea", comprador: "Comprador", atrasada: "Atrasada" } as const;
+const badgeLabel = { hito: "Hito", tarea: "Tu tarea", comprador: "Comprador", vendedor: "Vendedor", agente: "Agente", atrasada: "Atrasada" } as const;
+export type BadgeKind = keyof typeof badgeStyle;
 
-export function Badge({ kind }: { kind: keyof typeof badgeStyle }) {
+export function Badge({ kind }: { kind: BadgeKind }) {
   return (
     <span className={clsx("inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold", badgeStyle[kind])}>
       {badgeLabel[kind]}
@@ -29,11 +35,16 @@ export function Badge({ kind }: { kind: keyof typeof badgeStyle }) {
   );
 }
 
+/** Owner badge relative to the viewer: "Tu tarea" when it's mine, otherwise who owns it. */
+export const ownerBadge = (assignee: "agent" | "buyer" | "seller", role: "agent" | "buyer" | "seller"): BadgeKind =>
+  assignee === role ? "tarea" : assignee === "buyer" ? "comprador" : assignee === "seller" ? "vendedor" : "agente";
+
 export function ItemBadges({ item }: { item: CalItem }) {
+  const { role } = useStore();
   return (
     <span className="flex flex-wrap items-center justify-end gap-1">
       {item.overdue && <Badge kind="atrasada" />}
-      {item.kind === "event" ? <Badge kind="hito" /> : item.assignee === "buyer" ? <Badge kind="comprador" /> : <Badge kind="tarea" />}
+      {item.kind === "event" ? <Badge kind="hito" /> : <Badge kind={ownerBadge(item.assignee ?? "agent", role)} />}
     </span>
   );
 }
@@ -70,8 +81,9 @@ export function Dots({ items, max = 4 }: { items: CalItem[]; max?: number }) {
 export function Legend() {
   const l = [
     ["bg-navy", "Hito"],
-    ["bg-[#7FA8C9]", "Tu tarea"],
+    ["bg-[#7FA8C9]", "Agente"],
     ["bg-accent ring-1 ring-navy/30", "Comprador"],
+    ["bg-emerald-500", "Vendedor"],
     ["bg-red-500", "Atrasada"],
   ];
   return (

@@ -3,7 +3,8 @@ export const TODAY = "2026-09-29";
 
 export type Stage = "prospect" | "offer" | "under_contract" | "due_diligence" | "closing";
 export type TaskStatus = "pending" | "in_progress" | "completed";
-export type Assignee = "agent" | "buyer";
+export type Assignee = "agent" | "buyer" | "seller";
+export type Role = "agent" | "buyer" | "seller";
 export type TaskAction = "upload" | "sign" | "schedule" | "review" | "send" | "request" | "prepare" | "confirm" | "transfer";
 export type EventType = "offer" | "inspection" | "appraisal" | "closing" | "custom";
 
@@ -67,7 +68,7 @@ export const deals: Deal[] = [
   {
     id: "d1",
     address: { street: "Av. José Larco", number: "1150", district: "Miraflores", province: "Lima", department: "Lima" },
-    buyer: { name: "Lucía Fernández", email: "lucia.fernandez@example.com", phone: "+51 912 345 678", initials: "LF" },
+    buyer: { name: "Camila Bacan", email: "camila.bacan@example.com", phone: "+51 912 345 678", initials: "CB" },
     pricePen: 685000,
     listingPricePen: 720000,
     stage: "due_diligence",
@@ -130,6 +131,9 @@ export const tasks: Task[] = [
   { id: "t7", dealId: "d3", title: "Preparar contraoferta", assignee: "agent", status: "in_progress", dueDate: "2026-10-01", action: "prepare" },
   { id: "t8", dealId: "d5", title: "Confirmar cita con notario", assignee: "agent", status: "completed", dueDate: "2026-09-25", action: "confirm" },
   { id: "t9", dealId: "d5", title: "Transferir cuota inicial", description: "Transfiere el saldo a la cuenta de depósito en garantía del notario.", assignee: "buyer", status: "in_progress", dueDate: "2026-10-03", action: "transfer" },
+  { id: "t11", dealId: "d1", title: "Subir título de propiedad", description: "Sube la copia del título de propiedad para la revisión del notario.", assignee: "seller", status: "pending", dueDate: "2026-10-01", action: "upload" },
+  { id: "t12", dealId: "d1", title: "Firmar contrato de compraventa", assignee: "seller", status: "pending", dueDate: "2026-10-20", action: "sign" },
+  { id: "t13", dealId: "d1", title: "Confirmar fecha de entrega de llaves", assignee: "seller", status: "pending", dueDate: "2026-11-05", action: "confirm" },
   { id: "t10", dealId: "d4", title: "Programar segunda visita", assignee: "agent", status: "pending", dueDate: "2026-10-05", action: "schedule" },
 ];
 
@@ -151,10 +155,19 @@ export const timeline: TimelineEvent[] = [
 
 export const audit: AuditEntry[] = [
   { id: "a1", dealId: "d1", who: "Maricarmen Fransi", what: "Movió la etapa de Bajo contrato a Diligencia debida", when: "2026-09-27T16:10:00" },
-  { id: "a2", dealId: "d1", who: "Lucía Fernández", what: 'Completó "Firmar carta de oferta"', when: "2026-09-12T11:42:00" },
+  { id: "a2", dealId: "d1", who: "Camila Bacan", what: 'Completó "Firmar carta de oferta"', when: "2026-09-12T11:42:00" },
   { id: "a3", dealId: "d1", who: "Maricarmen Fransi", what: 'Creó la tarea "Cargar carta de precalificación"', when: "2026-09-11T09:05:00" },
   { id: "a4", dealId: "d1", who: "Maricarmen Fransi", what: "Creó el negocio", when: "2026-09-08T14:30:00" },
 ];
+
+export const accounts: Record<Role, { name: string; initials: string; label: string; photo?: string; dealIds: string[] | "all" }> = {
+  agent: { name: agent.name, initials: agent.initials, label: "Agente", photo: agent.photo, dealIds: "all" },
+  buyer: { name: "Camila Bacan", initials: "CB", label: "Compradora", dealIds: ["d1"] },
+  seller: { name: "Jorge Salazar", initials: "JS", label: "Vendedor", dealIds: ["d1"] },
+};
+
+// Initial shared state (demo). Real value lives in the store.
+export const INITIAL_SYNC = "2026-09-29T08:40:00";
 
 export const dealById = (id: string) => deals.find((d) => d.id === id);
 export const tasksFor = (dealId: string) => tasks.filter((t) => t.dealId === dealId);

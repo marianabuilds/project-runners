@@ -5,11 +5,13 @@ import clsx from "clsx";
 import { AgendaRow, Dots, Legend } from "./agenda";
 import { allItems, groupByDate, weekOf, WEEKDAYS_LONG, weekdayIndex } from "@/lib/calendar";
 import { TODAY } from "@/lib/data";
+import { useStore } from "@/lib/store";
 import { fmtLong } from "@/lib/format";
 
 export function WeekStrip() {
   const days = weekOf(TODAY);
-  const by = useMemo(() => groupByDate(allItems()), []);
+  const { visibleTasks, deals } = useStore();
+  const by = useMemo(() => groupByDate(allItems(visibleTasks, deals.map((d) => d.id))), [visibleTasks, deals]);
   const [selected, setSelected] = useState(TODAY);
   const items = by.get(selected) ?? [];
 

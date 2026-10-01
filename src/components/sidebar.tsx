@@ -8,16 +8,16 @@ import {
   LayoutDashboard,
   Building2,
   ListChecks,
-  CalendarDays,
   CalendarRange,
   Settings,
   Menu,
   X,
-  MoreHorizontal,
-  Eye,
+  ArrowLeftRight,
+  Check,
   Plus,
 } from "lucide-react";
-import { agent } from "@/lib/data";
+import { accounts, type Role } from "@/lib/data";
+import { useStore } from "@/lib/store";
 import { Avatar } from "./ui";
 
 const sections = [
@@ -31,14 +31,9 @@ const sections = [
   {
     heading: "Negocios",
     items: [
-      { href: "/deals", label: "Todos los negocios", icon: Building2 },
+      { href: "/deals", label: "Negocios", icon: Building2 },
       { href: "/tasks", label: "Tareas", icon: ListChecks },
-      { href: "/timeline", label: "Cronograma", icon: CalendarDays },
     ],
-  },
-  {
-    heading: "Previsualización",
-    items: [{ href: "/buyer", label: "Vista del comprador", icon: Eye }],
   },
   {
     heading: "Cuenta",
@@ -93,21 +88,60 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function UserCard() {
+  const { role, me, setRole } = useStore();
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex items-center gap-3 border-t border-navy-100 bg-paper px-5 py-4">
-      <Avatar initials={agent.initials} src={agent.photo} />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-navy">{agent.name}</p>
-        <p className="truncate text-xs text-navy-200">{agent.agency}</p>
+    <div className="relative border-t border-navy-100 bg-paper px-5 py-4">
+      {open && (
+        <div className="absolute inset-x-3 bottom-full mb-2 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-navy/10" role="menu" aria-label="Cambiar cuenta">
+          <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-navy-200">Cambiar cuenta</p>
+          {(Object.keys(accounts) as Role[]).map((r) => {
+            const a = accounts[r];
+            return (
+              <button
+                key={r}
+                role="menuitemradio"
+                aria-checked={role === r}
+                onClick={() => {
+                  setRole(r);
+                  setOpen(false);
+                }}
+                className={clsx("flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-paper", role === r && "bg-sky")}
+              >
+                <Avatar initials={a.initials} src={a.photo} size="sm" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-navy">{a.name}</span>
+                  <span className="block text-xs text-navy-200">{a.label}</span>
+                </span>
+                {role === r && <Check className="h-4 w-4 text-navy" aria-hidden />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex items-center gap-3">
+        <Avatar initials={me.initials} src={me.photo} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-navy">{me.name}</p>
+          <p className="truncate text-xs text-navy-200">{me.label}</p>
+        </div>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="rounded-lg p-1.5 text-navy-200 hover:bg-navy-100"
+          aria-label="Cambiar cuenta"
+          title="Cambiar cuenta"
+        >
+          <ArrowLeftRight className="h-5 w-5" />
+        </button>
       </div>
-      <button className="rounded-lg p-1.5 text-navy-200 hover:bg-navy-100" aria-label="Menú de cuenta">
-        <MoreHorizontal className="h-5 w-5" />
-      </button>
     </div>
   );
 }
 
 function NewDealButton({ onNavigate }: { onNavigate?: () => void }) {
+  const { role } = useStore();
+  if (role !== "agent") return <div className="pb-2" />;
   return (
     <div className="px-3 pb-4">
       <Link

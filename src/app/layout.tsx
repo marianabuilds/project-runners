@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito_Sans } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
+import { StoreProvider } from "@/lib/store";
 import "./globals.css";
 
 const nunitoSans = Nunito_Sans({ subsets: ["latin"], display: "swap", variable: "--font-fallback" });
@@ -14,10 +15,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es" className={nunitoSans.variable}>
       <body className="bg-paper font-sans text-navy antialiased">
-        <div className="lg:flex">
-          <Sidebar />
-          <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</main>
-        </div>
+        <StoreProvider>
+          <div className="lg:flex">
+            <Sidebar />
+            <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</main>
+          </div>
+        </StoreProvider>
       </body>
     </html>
   );

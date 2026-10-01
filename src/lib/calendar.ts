@@ -1,4 +1,4 @@
-import { dealById, tasks, timeline, TODAY, type Assignee, type EventType } from "./data";
+import { dealById, tasks as seedTasks, timeline, TODAY, type Assignee, type EventType, type Task } from "./data";
 import { shortAddress } from "./format";
 
 export type CalItem = {
@@ -54,8 +54,9 @@ export const monthLabel = (ym: string) => {
 export const WEEKDAYS_SHORT = ["L", "M", "X", "J", "V", "S", "D"];
 export const WEEKDAYS_LONG = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-export const allItems = (): CalItem[] => {
-  const ev: CalItem[] = timeline.map((e) => {
+export const allItems = (tasks: Task[] = seedTasks, dealIds?: string[]): CalItem[] => {
+  const inScope = (id: string) => !dealIds || dealIds.includes(id);
+  const ev: CalItem[] = timeline.filter((e) => inScope(e.dealId)).map((e) => {
     const d = dealById(e.dealId)!;
     return {
       id: e.id,
@@ -69,14 +70,14 @@ export const allItems = (): CalItem[] => {
       overdue: false,
     };
   });
-  const ts: CalItem[] = tasks.map((t) => {
+  const ts: CalItem[] = tasks.filter((t) => inScope(t.dealId)).map((t) => {
     const d = dealById(t.dealId)!;
     const done = t.status === "completed";
     return {
       id: t.id,
       date: t.dueDate,
       title: t.title,
-      sub: `${shortAddress(d)} · ${t.assignee === "buyer" ? d.buyer.name : "Tú"}`,
+      sub: `${shortAddress(d)} · ${t.assignee === "buyer" ? d.buyer.name : t.assignee === "seller" ? d.sellerName : "Agente"}`,
       dealId: t.dealId,
       kind: "task",
       assignee: t.assignee,
@@ -99,4 +100,4 @@ export const groupByDate = (items: CalItem[]) => {
 };
 
 export const dotClass = (i: CalItem) =>
-  i.overdue ? "bg-red-500" : i.kind === "event" ? "bg-navy" : i.assignee === "buyer" ? "bg-accent ring-1 ring-navy/30" : "bg-[#7FA8C9]";
+  i.overdue ? "bg-red-500" : i.kind === "event" ? "bg-navy" : i.assignee === "buyer" ? "bg-accent ring-1 ring-navy/30" : i.assignee === "seller" ? "bg-emerald-500" : "bg-[#7FA8C9]";

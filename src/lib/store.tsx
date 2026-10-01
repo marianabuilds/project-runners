@@ -1,19 +1,21 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { accounts, audit, STAGES, type TaskAction, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
+import { ACTION_DOC_STATUS, accounts, audit, docs as seedDocs, STAGES, type Doc, type DocStatus, type TaskAction, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
 
 // Demo-only shared store: one source of truth for every role, persisted in localStorage
 // (synced across tabs via the `storage` event). The role itself is per-tab (sessionStorage).
-type Shared = { tasks: Task[]; stages: Record<string, Stage>; activity: AuditEntry[]; lastSync: string };
+type Shared = { docs: Doc[]; tasks: Task[]; stages: Record<string, Stage>; activity: AuditEntry[]; lastSync: string };
 
 const KEY = "trato-demo-v1";
 const ROLE_KEY = "trato-demo-role";
 const DEAL_KEY = "trato-demo-deal";
+const DOC_STATUS_LABEL: Record<DocStatus, string> = { pendiente: "Pendiente", subido: "Subido", en_revision: "En revisión", firmado: "Firmado", aprobado: "Aprobado" };
 const SEEN_KEY = "trato-demo-seen-";
 export type Scope = string | "all";
 
 const seed = (): Shared => ({
+  docs: seedDocs,
   tasks: seedTasks,
   stages: Object.fromEntries(allDeals.map((d) => [d.id, d.stage])),
   activity: [...audit].sort((a, b) => b.when.localeCompare(a.when)),
@@ -29,11 +31,13 @@ type Ctx = Shared & {
   visibleActivity: AuditEntry[];
   activeDealId: Scope;
   setActiveDeal: (id: Scope) => void;
-  scoped: { isAll: boolean; deals: Deal[]; tasks: Task[]; activity: AuditEntry[] };
+  scoped: { isAll: boolean; deals: Deal[]; tasks: Task[]; activity: AuditEntry[]; docs: Doc[] };
   stageOf: (dealId: string) => Stage;
   setTaskDone: (id: string, done: boolean) => void;
   completeMany: (ids: string[]) => void;
   setStage: (dealId: string, stage: Stage) => void;
+  setDocStatus: (id: string, status: DocStatus) => void;
+  setDocNote: (id: string, note: string) => void;
   addTask: (t: { dealId: string; title: string; dueDate: string; action: TaskAction }) => void;
   lastSeen: string;
   markSeen: () => void;
@@ -57,6 +61,18 @@ const safe = {
   },
 };
 
+// Older saved states may lack docs / docId links; fill them from the seed.
+const migrate = (saved: Partial<Shared>): Shared => {
+  const base = seed();
+  const links = new Map(seedTasks.map((t) => [t.id, t.docId]));
+  return {
+    ...base,
+    ...saved,
+    docs: saved.docs ?? base.docs,
+    tasks: (saved.tasks ?? base.tasks).map((t) => (t.docId || !links.get(t.id) ? t : { ...t, docId: links.get(t.id) })),
+  } as Shared;
+};
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<Shared>(seed);
   const [role, setRoleState] = useState<Role>("agent");
@@ -68,7 +84,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const saved = safe.get(typeof window === "undefined" ? undefined : localStorage, KEY);
     if (saved) {
       try {
-        setState(JSON.parse(saved));
+        setState(migrate(JSON.parse(saved)));
       } catch {}
     }
     const r = safe.get(typeof window === "undefined" ? undefined : sessionStorage, ROLE_KEY) as Role | null;
@@ -81,7 +97,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const onStorage = (e: StorageEvent) => {
       if (e.key === KEY && e.newValue) {
         try {
-          setState(JSON.parse(e.newValue));
+          setState(migrate(JSON.parse(e.newValue)));
         } catch {}
       }
     };
@@ -117,13 +133,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setState((s) => {
         const t = s.tasks.find((x) => x.id === id);
         if (!t) return s;
-        return {
+        const next: Shared = {
           ...s,
           tasks: s.tasks.map((x) => (x.id === id ? { ...x, status: done ? "completed" : "pending" } : x)),
           activity: [log(t.dealId, done ? `Completó "${t.title}"` : `Reabrió "${t.title}"`), ...s.activity],
         };
+        const status = done && t.docId ? ACTION_DOC_STATUS[t.action] : undefined;
+        const doc = status ? s.docs.find((d) => d.id === t.docId) : undefined;
+        if (doc && status) {
+          const now = new Date().toISOString();
+          next.docs = s.docs.map((d) => (d.id === doc.id ? { ...d, status, updatedAt: now, updatedBy: me.name } : d));
+          next.activity = [log(doc.dealId, `Actualizó "${doc.name}": ${DOC_STATUS_LABEL[status]}`), ...next.activity];
+        }
+        return next;
       }),
-    [log],
+    [log, me.name],
   );
 
   const completeMany = useCallback(
@@ -143,6 +167,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (dealId: string, stage: Stage) =>
       setState((s) => ({ ...s, stages: { ...s.stages, [dealId]: stage }, activity: [log(dealId, `Movió la etapa a ${STAGES.find((x) => x.key === stage)?.label ?? stage}`), ...s.activity] })),
     [log],
+  );
+
+  const setDocStatus = useCallback(
+    (id: string, status: DocStatus) =>
+      setState((s) => {
+        const d = s.docs.find((x) => x.id === id);
+        if (!d) return s;
+        return {
+          ...s,
+          docs: s.docs.map((x) => (x.id === id ? { ...x, status, updatedAt: new Date().toISOString(), updatedBy: me.name } : x)),
+          activity: [log(d.dealId, `Actualizó "${d.name}": ${DOC_STATUS_LABEL[status]}`), ...s.activity],
+        };
+      }),
+    [log, me.name],
+  );
+
+  const setDocNote = useCallback(
+    (id: string, note: string) =>
+      setState((s) => {
+        const d = s.docs.find((x) => x.id === id);
+        if (!d) return s;
+        return {
+          ...s,
+          docs: s.docs.map((x) => (x.id === id ? { ...x, note: note.trim() || undefined, updatedAt: new Date().toISOString(), updatedBy: me.name } : x)),
+          activity: [log(d.dealId, `Dejó una nota en "${d.name}"`), ...s.activity],
+        };
+      }),
+    [log, me.name],
   );
 
   const addTask = useCallback(
@@ -180,6 +232,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       deals: deals.filter((d) => inScope(d.id)),
       tasks: visibleTasks.filter((t) => inScope(t.dealId)),
       activity: visibleActivity.filter((a) => inScope(a.dealId)),
+      docs: state.docs.filter((d) => ids.includes(d.dealId) && inScope(d.dealId) && (role === "agent" || d.owner === "shared" || d.owner === role)),
     };
     return {
       ...state,
@@ -196,12 +249,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTaskDone,
       completeMany,
       setStage,
+      setDocStatus,
+      setDocNote,
       addTask,
       lastSeen,
       markSeen,
       syncWhatsApp,
     };
-  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, addTask, lastSeen, markSeen, syncWhatsApp]);
+  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, setDocStatus, setDocNote, addTask, lastSeen, markSeen, syncWhatsApp]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

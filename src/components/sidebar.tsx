@@ -6,7 +6,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard,
-  Building2,
+  FileText,
   ListChecks,
   CalendarRange,
   Settings,
@@ -31,8 +31,8 @@ const sections = [
   {
     heading: "Negocios",
     items: [
-      { href: "/deals", label: "Negocios", icon: Building2 },
       { href: "/tasks", label: "Tareas", icon: ListChecks },
+      { href: "/documents", label: "Documentos", icon: FileText },
     ],
   },
   {

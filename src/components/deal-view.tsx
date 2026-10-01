@@ -7,6 +7,7 @@ import { StageControl } from "./stage-select";
 import { TaskList } from "./task-list";
 import { Avatar, Card, CardHeader, StageBadge } from "./ui";
 import { agent, dealById } from "@/lib/data";
+import { DocStatusBadge } from "./doc-status";
 import { daysFromToday, fmtDate, fullAddress, pen, shortAddress } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { waLink } from "@/lib/whatsapp";
@@ -53,7 +54,7 @@ function ContactCard({ title, name, email, phone, initials, photo, subtitle }: {
 }
 
 export function DealView({ id }: { id: string }) {
-  const { role, deals, visibleTasks, stageOf } = useStore();
+  const { role, deals, visibleTasks, stageOf, docs } = useStore();
   const base = dealById(id)!;
   if (!deals.some((d) => d.id === id)) {
     return (
@@ -154,6 +155,24 @@ export function DealView({ id }: { id: string }) {
             </Card>
           )}
         </div>
+
+        <Card className="lg:col-span-12">
+          <CardHeader title="Documentos" subtitle="Se actualiza desde WhatsApp y desde las tareas" href="/documents" />
+          <ul className="divide-y divide-navy-100">
+            {docs
+              .filter((d) => d.dealId === id && (isAgent || d.owner === "shared" || d.owner === role))
+              .slice(0, 5)
+              .map((d) => (
+                <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 sm:px-6">
+                  <span className="font-semibold text-ink">{d.name}</span>
+                  <span className="flex items-center gap-3 text-xs text-ink-muted">
+                    {d.updatedBy}
+                    <DocStatusBadge status={d.status} />
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </Card>
 
         <Card className="lg:col-span-12">
           <CardHeader title="Actividad" subtitle="Cambios de etapa y tareas, visibles para todos los participantes" />

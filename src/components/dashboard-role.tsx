@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CalendarDays, ListChecks, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ActivityFeed } from "./activity-feed";
+import { AskCard } from "./ask-card";
 import { AddTask } from "./add-task";
 import { Checklist } from "./checklist";
 import { WeekStrip } from "./week-strip";
@@ -37,6 +38,8 @@ export function RoleDashboard() {
   return (
     <div className="mx-auto max-w-7xl pb-10">
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <AskCard />
+
         <Card tone="navy" className="p-6 sm:p-8 lg:col-span-12">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/20 blur-3xl" aria-hidden />
           <div className="relative">

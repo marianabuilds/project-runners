@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { ChevronRight, Settings2 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { PaymentsCard } from "@/components/payments-card";
 import { Avatar, Card } from "@/components/ui";
 import { WhatsAppCard } from "@/components/whatsapp-card";
 import { agent } from "@/lib/data";
@@ -32,7 +35,20 @@ export default function SettingsPage() {
           ))}
         </dl>
       </Card>
-      <WhatsAppCard className="lg:col-span-7 lg:self-start" />
+      <div className="space-y-5 lg:col-span-7">
+        <WhatsAppCard />
+        {role !== "buyer" && (
+          <Link href="/manage" className="flex items-center gap-3 rounded-3xl bg-surface p-5 ring-1 ring-navy-100/70 hover:bg-sky/50">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky text-ink" aria-hidden><Settings2 className="h-5 w-5" /></span>
+            <span className="flex-1">
+              <span className="block font-semibold text-ink">Gestionar negocio</span>
+              <span className="block text-sm text-ink-muted">Información, fotos y qué puede ver la compradora</span>
+            </span>
+            <ChevronRight className="h-5 w-5 text-ink-muted" aria-hidden />
+          </Link>
+        )}
+        <PaymentsCard />
+      </div>
       </div>
     </div>
   );

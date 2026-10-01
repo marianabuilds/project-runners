@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import clsx from "clsx";
 import { CheckCheck, X } from "lucide-react";
 import { Avatar } from "./ui";
 import { accounts } from "@/lib/data";
@@ -19,6 +20,21 @@ export function useUnread() {
 export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { visibleActivity, lastSeen, me, markSeen } = useStore();
   const closeRef = useRef<HTMLButtonElement>(null);
+  // Stay mounted during the exit animation so it slides out instead of vanishing.
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      // Two timeouts instead of rAF so the transition also runs when the tab is throttled.
+      const id = setTimeout(() => setVisible(true), 30);
+      return () => clearTimeout(id);
+    }
+    setVisible(false);
+    const t = setTimeout(() => setMounted(false), 300);
+    return () => clearTimeout(t);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +49,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
   const unread = visibleActivity.filter((a) => a.when > lastSeen && a.who !== me.name).length;
   const today = new Date().toDateString();
   const recent = visibleActivity.filter((a) => new Date(a.when).toDateString() === today);
@@ -58,8 +74,8 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
   // Portal: the top bar uses backdrop-blur, which would otherwise become the containing block of this fixed drawer.
   return createPortal(
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Notificaciones">
-      <button aria-label="Cerrar notificaciones" className="absolute inset-0 cursor-default bg-navy/40" onClick={onClose} />
-      <aside className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-surface shadow-2xl ring-1 ring-navy/10">
+      <button aria-label="Cerrar notificaciones" className={clsx("absolute inset-0 cursor-default bg-navy/40 transition-opacity duration-300 ease-out motion-reduce:transition-none", visible ? "opacity-100" : "opacity-0")} onClick={onClose} />
+      <aside className={clsx("absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-surface shadow-2xl ring-1 ring-navy/10 transition-transform duration-300 ease-out motion-reduce:transition-none", visible ? "translate-x-0" : "translate-x-full")}>
         <header className="flex items-center justify-between gap-3 border-b border-navy-100 px-5 py-4">
           <div>
             <h2 className="text-lg font-semibold text-ink">Notificaciones</h2>

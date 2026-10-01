@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { Bell, Building2, Check, ChevronDown, LayoutGrid, Moon, Sun } from "lucide-react";
+import Link from "next/link";
+import { Bell, Building2, ChevronDown, LayoutGrid, Moon, Settings2, Sun } from "lucide-react";
 import { NotificationsDrawer, useUnread } from "./notifications-drawer";
-import { StageBadge } from "./ui";
 import { shortAddress } from "@/lib/format";
 import { useStore } from "@/lib/store";
 
@@ -74,7 +74,7 @@ export function Topbar() {
                 <button role="option" aria-selected={activeDealId === "all"} onClick={() => pick("all")} className={clsx("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-paper", activeDealId === "all" && "bg-sky")}>
                   <LayoutGrid className="h-4 w-4 text-ink-muted" aria-hidden />
                   <span className="flex-1 text-sm font-medium text-ink">Todos los negocios <span className="font-normal text-ink-muted">(consolidado)</span></span>
-                  {activeDealId === "all" && <Check className="h-4 w-4 text-ink" aria-hidden />}
+                  {activeDealId === "all" && <span className="shrink-0 rounded-full bg-navy px-2.5 py-0.5 text-[11px] font-bold text-white">Viendo</span>}
                 </button>
               )}
               {deals.map((d) => (
@@ -84,8 +84,7 @@ export function Topbar() {
                     <span className="block truncate text-sm font-medium text-ink">{shortAddress(d)}</span>
                     <span className="block truncate text-xs text-ink-muted">{d.address.district} · {role === "seller" ? "Comprador interesado" : d.buyer.name} · {openCount(d.id)} por hacer</span>
                   </span>
-                  <StageBadge stage={d.stage} />
-                  {activeDealId === d.id && <Check className="h-4 w-4 text-ink" aria-hidden />}
+                  {activeDealId === d.id && <span className="shrink-0 rounded-full bg-navy px-2.5 py-0.5 text-[11px] font-bold text-white">Viendo</span>}
                 </button>
               ))}
             </div>
@@ -93,6 +92,12 @@ export function Topbar() {
         )}
       </div>
       <div className="flex items-center gap-2">
+        {role !== "buyer" && (
+          <Link href="/manage" className="flex h-10 items-center gap-2 rounded-xl bg-surface px-3 text-sm font-semibold text-ink ring-1 ring-navy-100 hover:bg-sky" title="Gestionar negocio">
+            <Settings2 className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Gestionar</span>
+          </Link>
+        )}
         <button
           onClick={() => setBellOpen(true)}
           aria-label={unread ? `Notificaciones, ${unread} sin leer` : "Notificaciones"}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard,
@@ -14,12 +14,14 @@ import {
   X,
   ArrowLeftRight,
   Check,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
 } from "lucide-react";
 import { accounts, type Role } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { Avatar } from "./ui";
-import { Logo } from "./logo";
+import { Logo, LogoMark } from "./logo";
 
 const items = [
   { href: "/", label: "Panel", icon: LayoutDashboard },
@@ -29,13 +31,16 @@ const items = [
   { href: "/settings", label: "Configuración", icon: Settings },
 ];
 
-function Nav({ onNavigate }: { onNavigate?: () => void }) {
+const label = (compact?: boolean) =>
+  clsx("overflow-hidden whitespace-nowrap transition-all duration-300 motion-reduce:transition-none", compact ? "max-w-0 opacity-0" : "max-w-40 opacity-100");
+
+function Nav({ onNavigate, compact }: { onNavigate?: () => void; compact?: boolean }) {
   const path = usePathname();
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
   return (
-    <nav aria-label="Principal" className="flex-1 overflow-y-auto px-3">
+    <nav aria-label="Principal" className={clsx("flex-1 overflow-y-auto overflow-x-hidden", compact ? "px-2" : "px-3")}>
       <ul className="space-y-0.5">
-        {items.map(({ href, label, icon: Icon }) => {
+        {items.map(({ href, label: label_, icon: Icon }) => {
           const active = isActive(href);
           return (
             <li key={href}>
@@ -43,13 +48,15 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
                 href={href}
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
+                aria-label={compact ? label_ : undefined}
+                title={compact ? label_ : undefined}
                 className={clsx(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
                   active ? "bg-sky font-bold text-ink" : "text-ink hover:bg-paper",
                 )}
               >
                 <Icon className={clsx("h-5 w-5", active ? "text-ink" : "text-ink-muted")} aria-hidden />
-                {label}
+                <span className={label(compact)}>{label_}</span>
               </Link>
             </li>
           );
@@ -59,13 +66,13 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function UserCard() {
+function UserCard({ compact }: { compact?: boolean }) {
   const { role, me, setRole } = useStore();
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative border-t border-navy-100 bg-paper px-5 py-4">
+    <div className={clsx("relative border-t border-navy-100 bg-paper py-4 transition-all duration-300 motion-reduce:transition-none", compact ? "px-3" : "px-5")}>
       {open && (
-        <div className="absolute inset-x-3 bottom-full mb-2 rounded-2xl bg-surface p-2 shadow-xl ring-1 ring-navy/10" role="menu" aria-label="Cambiar cuenta">
+        <div className={clsx("absolute bottom-full mb-2 rounded-2xl bg-surface p-2 shadow-xl ring-1 ring-navy/10", compact ? "left-2 w-64" : "inset-x-3")} role="menu" aria-label="Cambiar cuenta">
           <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Cambiar cuenta</p>
           {(Object.keys(accounts) as Role[]).map((r) => {
             const a = accounts[r];
@@ -91,9 +98,9 @@ function UserCard() {
           })}
         </div>
       )}
-      <div className="flex items-center gap-3">
+      <div className={clsx("flex items-center", compact ? "flex-col gap-2" : "gap-3")}>
         <Avatar initials={me.initials} src={me.photo} />
-        <div className="min-w-0 flex-1">
+        <div className={clsx("min-w-0 flex-1", compact && "hidden")}>
           <p className="truncate text-sm font-semibold text-ink">{me.name}</p>
           <p className="truncate text-xs text-ink-muted">{me.label}</p>
         </div>
@@ -111,17 +118,19 @@ function UserCard() {
   );
 }
 
-function NewDealButton({ onNavigate }: { onNavigate?: () => void }) {
+function NewDealButton({ onNavigate, compact }: { onNavigate?: () => void; compact?: boolean }) {
   const { role } = useStore();
   if (role !== "agent") return <div className="pb-2" />;
   return (
-    <div className="px-3 pb-4">
+    <div className={clsx("pb-4", compact ? "px-2" : "px-3")}>
       <Link
         href="/deals/new"
+        aria-label="Nuevo negocio"
+        title="Nuevo negocio"
         onClick={onNavigate}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-medium text-white hover:bg-navy-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy px-3 py-2.5 text-sm font-medium text-white hover:bg-navy-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
       >
-        <Plus className="h-4 w-4" aria-hidden /> Nuevo negocio
+        <Plus className="h-4 w-4 shrink-0" aria-hidden /> <span className={label(compact)}>Nuevo negocio</span>
       </Link>
     </div>
   );
@@ -129,6 +138,19 @@ function NewDealButton({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem("trato-sidebar") === "collapsed");
+    } catch {}
+  }, []);
+  const toggle = () =>
+    setCollapsed((c) => {
+      try {
+        localStorage.setItem("trato-sidebar", c ? "expanded" : "collapsed");
+      } catch {}
+      return !c;
+    });
   return (
     <>
       {/* Mobile top bar */}
@@ -157,14 +179,30 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-navy-100 bg-surface lg:flex">
-        <div className="px-6 py-6">
-          <Logo />
+      {/* Desktop sidebar: collapsible */}
+      <aside
+        id="sidebar"
+        className={clsx(
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-navy-100 bg-surface transition-[width] duration-300 ease-in-out motion-reduce:transition-none lg:flex",
+          collapsed ? "w-[4.5rem]" : "w-64",
+        )}
+      >
+        <div className={clsx("flex items-center py-6", collapsed ? "flex-col gap-4 px-2" : "justify-between px-6")}>
+          {collapsed ? <LogoMark /> : <Logo />}
+          <button
+            onClick={toggle}
+            aria-expanded={!collapsed}
+            aria-controls="sidebar"
+            aria-label={collapsed ? "Expandir panel lateral" : "Contraer panel lateral"}
+            title={collapsed ? "Expandir" : "Contraer"}
+            className="grid h-9 w-9 place-items-center rounded-lg text-ink-muted hover:bg-paper hover:text-ink"
+          >
+            {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+          </button>
         </div>
-        <NewDealButton />
-        <Nav />
-        <UserCard />
+        <NewDealButton compact={collapsed} />
+        <Nav compact={collapsed} />
+        <UserCard compact={collapsed} />
       </aside>
     </>
   );

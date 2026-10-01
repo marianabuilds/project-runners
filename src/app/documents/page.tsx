@@ -65,7 +65,7 @@ export default function DocumentsPage() {
         <Card className="order-2 lg:col-span-12">
           <CardHeader title="Estado de documentos" subtitle="Se actualiza desde WhatsApp y desde las tareas" count={shown.length} />
           <div className="flex flex-wrap gap-1.5 border-b border-navy-100 px-5 py-3 sm:px-6" role="group" aria-label="Filtrar por categoría">
-            {(["all", ...DOC_CATEGORIES] as const).map((c) => (
+            {(["all", ...DOC_CATEGORIES.filter((c) => docs.some((d) => d.category === c))] as const).map((c) => (
               <button key={c} onClick={() => setCat(c)} aria-pressed={cat === c} className={clsx("rounded-full px-3 py-1 text-sm font-semibold", cat === c ? "bg-navy text-white" : "bg-paper text-ink hover:bg-sky")}>
                 {c === "all" ? "Todas" : c}
               </button>

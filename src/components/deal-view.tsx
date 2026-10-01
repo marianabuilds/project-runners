@@ -54,7 +54,7 @@ function ContactCard({ title, name, email, phone, initials, photo, subtitle }: {
 }
 
 export function DealView({ id }: { id: string }) {
-  const { role, deals, visibleTasks, stageOf, docs } = useStore();
+  const { role, deals, visibleTasks, stageOf, docs, manage } = useStore();
   const base = dealById(id)!;
   if (!deals.some((d) => d.id === id)) {
     return (
@@ -68,6 +68,12 @@ export function DealView({ id }: { id: string }) {
   const tasks = visibleTasks.filter((t) => t.dealId === id);
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
   const isAgent = role === "agent";
+  const info = manage[id];
+  const acc = info?.buyerAccess;
+  const buyerView = role === "buyer";
+  const showListPrice = !buyerView || acc?.listPrice !== false;
+  const showSeller = !buyerView || acc?.sellerName !== false;
+  const showPhotos = !buyerView || acc?.photos !== false;
 
   const stats = [
     { label: role === "seller" ? "Oferta recibida" : "Precio", value: pen(deal.pricePen, 0) },
@@ -130,6 +136,32 @@ export function DealView({ id }: { id: string }) {
           </div>
         )}
 
+        {info && (info.description || (showPhotos && info.photos.length > 0)) && (
+          <Card className="lg:col-span-12">
+            <CardHeader title="Sobre la propiedad" />
+            <div className="space-y-4 p-5 sm:p-6">
+              {info.description && <p className="text-sm leading-relaxed text-ink">{info.description}</p>}
+              {info.features.length > 0 && (
+                <ul className="flex flex-wrap gap-2">
+                  {info.features.map((f) => (
+                    <li key={f} className="rounded-full bg-sky px-3 py-1 text-xs font-semibold text-ink">{f}</li>
+                  ))}
+                </ul>
+              )}
+              {showPhotos && info.photos.length > 0 && (
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {info.photos.map((src, i) => (
+                    <li key={i} className="aspect-[4/3] overflow-hidden rounded-xl ring-1 ring-navy-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`Foto ${i + 1} de ${shortAddress(deal)}`} className="h-full w-full object-cover" />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </Card>
+        )}
+
         <Card className="lg:col-span-8">
           <CardHeader title="Tareas" count={tasks.length} />
           <TaskList tasks={tasks} />
@@ -140,11 +172,11 @@ export function DealView({ id }: { id: string }) {
             <CardHeader tone="paper" title="Detalles del negocio" />
             <dl className="divide-y divide-navy-100 px-5 py-2 text-sm sm:px-6">
               <Row label={role === "seller" ? "Oferta recibida" : "Precio oferta"} value={pen(deal.pricePen)} emphasis />
-              {deal.listingPricePen && <Row label="Precio de lista" value={pen(deal.listingPricePen)} />}
-              {deal.listingPricePen && role !== "buyer" && (
+              {deal.listingPricePen && showListPrice && <Row label="Precio de lista" value={pen(deal.listingPricePen)} />}
+              {deal.listingPricePen && !buyerView && (
                 <Row label="Por debajo de lista" value={<span className="text-emerald-700 dark:text-emerald-300">−{pen(deal.listingPricePen - deal.pricePen)}</span>} />
               )}
-              <Row label="Vendedor" value={deal.sellerName} />
+              {showSeller && <Row label="Vendedor" value={deal.sellerName} />}
               <Row label="Dirección" value={fullAddress(deal)} />
             </dl>
           </Card>
@@ -160,7 +192,7 @@ export function DealView({ id }: { id: string }) {
           <CardHeader title="Documentos" subtitle="Se actualiza desde WhatsApp y desde las tareas" href="/documents" />
           <ul className="divide-y divide-navy-100">
             {docs
-              .filter((d) => d.dealId === id && (isAgent || d.owner === "shared" || d.owner === role))
+              .filter((d) => d.dealId === id && (isAgent || d.owner === "shared" || d.owner === role) && (!buyerView || acc?.docCategories[d.category] !== false))
               .slice(0, 5)
               .map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 sm:px-6">

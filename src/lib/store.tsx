@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ACTION_DOC_STATUS, accounts, audit, docs as seedDocs, STAGES, type Doc, type DocStatus, type TaskAction, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
+import { ACTION_DOC_STATUS, accounts, audit, docs as seedDocs, seedManage, STAGES, type BuyerAccess, type ManageInfo, type Doc, type DocStatus, type TaskAction, deals as allDeals, INITIAL_SYNC, tasks as seedTasks, type AuditEntry, type Deal, type Role, type Stage, type Task } from "./data";
 
 // Demo-only shared store: one source of truth for every role, persisted in localStorage
 // (synced across tabs via the `storage` event). The role itself is per-tab (sessionStorage).
-type Shared = { docs: Doc[]; tasks: Task[]; stages: Record<string, Stage>; activity: AuditEntry[]; lastSync: string };
+type Shared = { manage: Record<string, ManageInfo>; docs: Doc[]; tasks: Task[]; stages: Record<string, Stage>; activity: AuditEntry[]; lastSync: string };
 
 const KEY = "trato-demo-v2";
 const ROLE_KEY = "trato-demo-role";
@@ -15,6 +15,7 @@ const SEEN_KEY = "trato-demo-seen-";
 export type Scope = string | "all";
 
 const seed = (): Shared => ({
+  manage: seedManage,
   docs: seedDocs,
   tasks: seedTasks,
   stages: Object.fromEntries(allDeals.map((d) => [d.id, d.stage])),
@@ -36,6 +37,11 @@ type Ctx = Shared & {
   setTaskDone: (id: string, done: boolean) => void;
   completeMany: (ids: string[]) => void;
   setStage: (dealId: string, stage: Stage) => void;
+  manage: Record<string, ManageInfo>;
+  setDealInfo: (dealId: string, patch: { description?: string; features?: string[] }) => void;
+  addPhotos: (dealId: string, urls: string[]) => void;
+  removePhoto: (dealId: string, index: number) => void;
+  setBuyerAccess: (dealId: string, patch: Partial<Omit<BuyerAccess, "docCategories">> & { docCategories?: Partial<BuyerAccess["docCategories"]> }) => void;
   setDocStatus: (id: string, status: DocStatus) => void;
   setDocNote: (id: string, note: string) => void;
   addTask: (t: { dealId: string; title: string; dueDate: string; action: TaskAction }) => void;
@@ -69,6 +75,7 @@ const migrate = (saved: Partial<Shared>): Shared => {
     ...base,
     ...saved,
     docs: saved.docs ?? base.docs,
+    manage: saved.manage ?? base.manage,
     tasks: (saved.tasks ?? base.tasks).map((t) => (t.docId || !links.get(t.id) ? t : { ...t, docId: links.get(t.id) })),
   } as Shared;
 };
@@ -197,6 +204,43 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [log, me.name],
   );
 
+  const setDealInfo = useCallback(
+    (dealId: string, patch: { description?: string; features?: string[] }) =>
+      setState((s) => ({
+        ...s,
+        manage: { ...s.manage, [dealId]: { ...s.manage[dealId], ...patch } },
+        activity: [log(dealId, "Actualizó la información del negocio"), ...s.activity],
+      })),
+    [log],
+  );
+
+  const addPhotos = useCallback(
+    (dealId: string, urls: string[]) =>
+      setState((s) => ({
+        ...s,
+        manage: { ...s.manage, [dealId]: { ...s.manage[dealId], photos: [...s.manage[dealId].photos, ...urls].slice(0, 6) } },
+        activity: [log(dealId, urls.length === 1 ? "Agregó una foto" : `Agregó ${urls.length} fotos`), ...s.activity],
+      })),
+    [log],
+  );
+
+  const removePhoto = useCallback(
+    (dealId: string, index: number) =>
+      setState((s) => ({ ...s, manage: { ...s.manage, [dealId]: { ...s.manage[dealId], photos: s.manage[dealId].photos.filter((_, i) => i !== index) } } })),
+    [],
+  );
+
+  // Permission changes are intentionally not logged to activity: that feed is visible to the buyer.
+  const setBuyerAccess = useCallback(
+    (dealId: string, patch: Partial<Omit<BuyerAccess, "docCategories">> & { docCategories?: Partial<BuyerAccess["docCategories"]> }) =>
+      setState((s) => {
+        const cur = s.manage[dealId];
+        const { docCategories, ...rest } = patch;
+        return { ...s, manage: { ...s.manage, [dealId]: { ...cur, buyerAccess: { ...cur.buyerAccess, ...rest, docCategories: { ...cur.buyerAccess.docCategories, ...docCategories } } } } };
+      }),
+    [],
+  );
+
   const addTask = useCallback(
     (t: { dealId: string; title: string; dueDate: string; action: TaskAction }) =>
       setState((s) => {
@@ -232,7 +276,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       deals: deals.filter((d) => inScope(d.id)),
       tasks: visibleTasks.filter((t) => inScope(t.dealId)),
       activity: visibleActivity.filter((a) => inScope(a.dealId)),
-      docs: state.docs.filter((d) => ids.includes(d.dealId) && inScope(d.dealId) && (role === "agent" || d.owner === "shared" || d.owner === role)),
+      docs: state.docs.filter((d) => ids.includes(d.dealId) && inScope(d.dealId) && (role === "agent" || d.owner === "shared" || d.owner === role) && (role !== "buyer" || state.manage[d.dealId]?.buyerAccess.docCategories[d.category] !== false)),
     };
     return {
       ...state,
@@ -249,6 +293,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTaskDone,
       completeMany,
       setStage,
+      manage: state.manage,
+      setDealInfo,
+      addPhotos,
+      removePhoto,
+      setBuyerAccess,
       setDocStatus,
       setDocNote,
       addTask,
@@ -256,7 +305,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       markSeen,
       syncWhatsApp,
     };
-  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, setDocStatus, setDocNote, addTask, lastSeen, markSeen, syncWhatsApp]);
+  }, [state, role, me, setRole, activeDeal, setActiveDeal, setTaskDone, completeMany, setStage, setDealInfo, addPhotos, removePhoto, setBuyerAccess, setDocStatus, setDocNote, addTask, lastSeen, markSeen, syncWhatsApp]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

@@ -186,6 +186,18 @@ export const accounts: Record<Role, { name: string; initials: string; label: str
 // Initial shared state (demo). Real value lives in the store.
 export const INITIAL_SYNC = "2026-09-29T08:40:00";
 
+export type BuyerAccess = { photos: boolean; listPrice: boolean; sellerName: boolean; docCategories: Record<DocCategory, boolean> };
+export type ManageInfo = { description: string; features: string[]; photos: string[]; buyerAccess: BuyerAccess };
+const allCats = (v: boolean): Record<DocCategory, boolean> => ({ Oferta: v, Financiamiento: v, Identidad: v, Propiedad: v, Notaría: v });
+const mk = (description: string, features: string[]): ManageInfo => ({ description, features, photos: [], buyerAccess: { photos: true, listPrice: true, sellerName: true, docCategories: allCats(true) } });
+export const seedManage: Record<string, ManageInfo> = {
+  d1: mk("Departamento luminoso de 3 dormitorios en Miraflores, a pasos de Larcomar. Sala-comedor amplia, cocina equipada y balcón con vista al parque.", ["3 dormitorios", "2 baños", "120 m²", "Balcón", "1 cochera"]),
+  d2: mk("Casa de dos pisos en San Isidro con jardín y terraza.", ["4 dormitorios", "3 baños", "240 m²", "Jardín"]),
+  d3: mk("Departamento acogedor en Barranco, cerca del malecón.", ["2 dormitorios", "1 baño", "85 m²"]),
+  d4: mk("Casa familiar en Yanahuara con patio interior.", ["3 dormitorios", "2 baños", "160 m²"]),
+  d5: mk("Departamento en Surco con áreas comunes y gimnasio.", ["3 dormitorios", "2 baños", "110 m²", "Gimnasio"]),
+};
+
 const A = "Maricarmen Fransi";
 export const docs: Doc[] = [
   { id: "doc1", dealId: "d1", name: "Carta de oferta", category: "Oferta", status: "firmado", updatedAt: "2026-09-12T11:42:00", updatedBy: "Melanie Torres", note: "Firmada y enviada al vendedor.", owner: "shared" },

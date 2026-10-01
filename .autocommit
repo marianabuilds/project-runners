@@ -1,2 +1,3 @@
-# auto-commit enabled (commit + merge locally only)
-# add a line "push" to push; public repos also need "allow-public"
+# auto-commit enabled for this project
+push
+allow-public

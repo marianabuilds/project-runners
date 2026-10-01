@@ -97,23 +97,10 @@ export function AgentDashboard() {
           </Card>
         ))}
 
-        {/* Week strip + selected-day agenda */}
-        <Card className="lg:col-span-7">
-          <CardHeader
-            title="Esta semana"
-            subtitle="Toca un día para ver sus pendientes"
-            icon={<IconBox className="bg-sky text-navy"><CalendarDays className="h-5 w-5" /></IconBox>}
-            action={
-              <Link href="/calendar" className="flex items-center gap-0.5 text-sm font-medium text-navy hover:text-navy-200">
-                Calendario <ChevronRight className="h-4 w-4" aria-hidden />
-              </Link>
-            }
-          />
-          <WeekStrip />
-        </Card>
-
+        {/* Left: to do + deals · Right: week + recent activity */}
+        <div className="space-y-5 lg:col-span-7">
         {/* To do */}
-        <Card tone="sky" className="lg:col-span-5">
+        <Card tone="sky">
           <CardHeader
             tone="sky"
             title="Cosas por hacer"
@@ -156,7 +143,7 @@ export function AgentDashboard() {
         </Card>
 
         {/* Active deals */}
-        <Card className="lg:col-span-7">
+        <Card>
           <CardHeader
             title="Negocios activos"
             count={deals.length}
@@ -193,32 +180,28 @@ export function AgentDashboard() {
           </ul>
         </Card>
 
-        {/* Pipeline */}
-        <Card tone="paper" className="lg:col-span-5">
-          <CardHeader tone="paper" title="Tu tubería de ventas" href="/deals" />
-          <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:p-6">
-            <div className="relative shrink-0">
-              <Donut segments={byStage.filter((s) => s.value).map((s) => ({ value: s.value, color: stageColor[s.key] }))} />
-              <div className="absolute inset-0 grid place-items-center text-center">
-                <div>
-                  <p className="text-xl font-semibold tabular-nums text-navy">{penShort(pipelineTotal)}</p>
-                  <p className="text-xs text-navy-200">valor total</p>
-                </div>
-              </div>
-            </div>
-            <ul className="w-full flex-1 space-y-2">
-              {byStage.map((s) => (
-                <li key={s.key} className="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 ring-1 ring-navy-100">
-                  <span className="h-3 w-3 rounded-full ring-1 ring-navy/20" style={{ background: stageColor[s.key] }} aria-hidden />
-                  <span className="flex-1 text-navy">{s.label}</span>
-                  <span className="text-sm tabular-nums text-navy-200">{s.value ? penShort(s.value) : "—"}</span>
-                  <span className="w-5 text-right text-sm font-semibold tabular-nums text-navy">{s.count}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        </div>
+        <div className="space-y-5 lg:col-span-5">
+        {/* Week strip + selected-day agenda */}
+        <Card>
+          <CardHeader
+            title="Esta semana"
+            subtitle="Toca un día para ver sus pendientes"
+            icon={<IconBox className="bg-sky text-navy"><CalendarDays className="h-5 w-5" /></IconBox>}
+            action={
+              <Link href="/calendar" className="flex items-center gap-0.5 text-sm font-medium text-navy hover:text-navy-200">
+                Calendario <ChevronRight className="h-4 w-4" aria-hidden />
+              </Link>
+            }
+          />
+          <WeekStrip />
         </Card>
 
+        <Card>
+          <CardHeader title="Actividad reciente" subtitle="Lo que ven agente, comprador y vendedor" />
+          <ActivityFeed limit={5} />
+        </Card>
+        </div>
         {/* Task progress */}
         <Card className="lg:col-span-4">
           <CardHeader title="Avance de tareas" subtitle={`${done} de ${tasks.length} completadas`} />
@@ -274,13 +257,35 @@ export function AgentDashboard() {
           </ul>
         </Card>
 
+        {/* Pipeline */}
+        <Card tone="paper" className="lg:col-span-7">
+          <CardHeader tone="paper" title="Tu tubería de ventas" href="/deals" />
+          <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:p-6">
+            <div className="relative shrink-0">
+              <Donut segments={byStage.filter((s) => s.value).map((s) => ({ value: s.value, color: stageColor[s.key] }))} />
+              <div className="absolute inset-0 grid place-items-center text-center">
+                <div>
+                  <p className="text-xl font-semibold tabular-nums text-navy">{penShort(pipelineTotal)}</p>
+                  <p className="text-xs text-navy-200">valor total</p>
+                </div>
+              </div>
+            </div>
+            <ul className="w-full flex-1 space-y-2">
+              {byStage.map((s) => (
+                <li key={s.key} className="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 ring-1 ring-navy-100">
+                  <span className="h-3 w-3 rounded-full ring-1 ring-navy/20" style={{ background: stageColor[s.key] }} aria-hidden />
+                  <span className="flex-1 text-navy">{s.label}</span>
+                  <span className="text-sm tabular-nums text-navy-200">{s.value ? penShort(s.value) : "—"}</span>
+                  <span className="w-5 text-right text-sm font-semibold tabular-nums text-navy">{s.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+
         <div className="lg:col-span-5">
           <WhatsAppCard className="h-full" />
         </div>
-        <Card className="lg:col-span-7">
-          <CardHeader title="Actividad reciente" subtitle="Lo que ven agente, comprador y vendedor" />
-          <ActivityFeed limit={6} />
-        </Card>
       </div>
     </div>
   );

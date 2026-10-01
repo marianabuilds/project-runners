@@ -69,17 +69,8 @@ export function RoleDashboard() {
           </div>
         </Card>
 
-        <Card className="lg:col-span-7">
-          <CardHeader
-            title="Esta semana"
-            subtitle="Toca un día para ver sus pendientes"
-            icon={<span className="grid h-10 w-10 place-items-center rounded-xl bg-sky text-navy" aria-hidden><CalendarDays className="h-5 w-5" /></span>}
-            action={<Link href="/calendar" className="text-sm font-medium text-navy hover:text-navy-200">Calendario</Link>}
-          />
-          <WeekStrip />
-        </Card>
-
-        <Card tone="sky" className="lg:col-span-5">
+        <div className="space-y-5 lg:col-span-7">
+        <Card tone="sky">
           <CardHeader
             tone="sky"
             title="Cosas por hacer"
@@ -108,12 +99,26 @@ export function RoleDashboard() {
           </ul>
         </Card>
 
-        <Card className="lg:col-span-7">
+        </div>
+        <div className="space-y-5 lg:col-span-5">
+        <Card>
+          <CardHeader
+            title="Esta semana"
+            subtitle="Toca un día para ver sus pendientes"
+            icon={<span className="grid h-10 w-10 place-items-center rounded-xl bg-sky text-navy" aria-hidden><CalendarDays className="h-5 w-5" /></span>}
+            action={<Link href="/calendar" className="text-sm font-medium text-navy hover:text-navy-200">Calendario</Link>}
+          />
+          <WeekStrip />
+        </Card>
+
+        <Card>
           <CardHeader title="Actividad" subtitle="Cualquier cambio se actualiza para todos" />
           <ActivityFeed dealId={deal.id} limit={8} />
         </Card>
 
-        <div className="space-y-5 lg:col-span-5">
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 lg:col-span-12 lg:grid-cols-2">
           <WhatsAppCard />
           <Card tone="paper">
             <CardHeader tone="paper" title="Tu agente" />
